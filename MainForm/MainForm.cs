@@ -1,4 +1,6 @@
-﻿using SimTMDG.Road;
+﻿using SimTMDG.Database;
+using SimTMDG.Database.Entity;
+using SimTMDG.Road;
 using SimTMDG.Time;
 using SimTMDG.Tools;
 using SimTMDG.Vehicle;
@@ -118,6 +120,8 @@ namespace SimTMDG
         private Rectangle daGridRubberband;
         private Point daGridScrollPosition = new Point();
         private PointF daGridViewCenter = new Point();
+        private Scheduler _scheduler;
+        private MongoService _mongoService;
 
         private float[,] zoomMultipliers = new float[,] {
             { 0.05f, 20},
@@ -157,17 +161,31 @@ namespace SimTMDG
             string osmPath = @"C:\Users\ajico\Documents\Coding\Backend\c#_digtwin\SimTMDG-master\osm-map\bandung-city-wide.osm";
             LoadOsmMap(osmPath);
 
-            //string graphPath = @"C:\Users\ajico\Documents\Coding\Backend\c#_digtwin\SimTMDG-master\osm-map\map.graphbin";
-            //if (File.Exists(graphPath))
-            //{
-            //    LoadGraphFromBinary(graphPath);
-            //}
-            //else
-            //{
-            //    string osmPath = @"C:\Users\ajico\Documents\Coding\Backend\c#_digtwin\SimTMDG-master\osm-map\bandung-city-wide.osm";
-            //    LoadOsmMap(osmPath);
-            //    SaveGraphToBinary(graphPath);
-            //}
+            this.Load += Main_Load;
+        }
+
+        public async void Main_Load(object sender, EventArgs e)
+        {
+            _mongoService = new MongoService();
+            string cronEvery5Second = "*/5 * * * * *";
+
+            _scheduler = new Scheduler(cronEvery5Second, async () =>
+            {
+                Debug.WriteLine($"[{DateTime.Now}] Cron job jalan!");
+
+                AtcsResult result = await _mongoService.GetAsync("VIDEO-a24e9620-d79c-4d2a-b2f1-ff2b35debbbc-2025");
+
+                if (result != null)
+                {
+                    MessageBox.Show($"Data ditemukan:\nCamera ID: {result.CameraId}\nAverage Speed: {result.AverageSpeed}");
+                }
+                else
+                {
+                    MessageBox.Show("Data dengan GUID tersebut tidak ditemukan.");
+                }
+            });
+
+            _scheduler.Start();
         }
 
         #region timer

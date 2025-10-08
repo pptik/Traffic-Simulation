@@ -1,0 +1,211 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Cronos</name>
+    </assembly>
+    <members>
+        <member name="T:Cronos.CronExpression">
+            <summary>
+            Provides a parser and scheduler for cron expressions.
+            </summary>
+        </member>
+        <member name="F:Cronos.CronExpression.Yearly">
+            <summary>
+            Represents a cron expression that fires on Jan 1st every year at midnight.
+            Equals to "0 0 1 1 *".
+            </summary>
+        </member>
+        <member name="F:Cronos.CronExpression.Weekly">
+            <summary>
+            Represents a cron expression that fires every Sunday at midnight.
+            Equals to "0 0 * * 0".
+            </summary>
+        </member>
+        <member name="F:Cronos.CronExpression.Monthly">
+            <summary>
+            Represents a cron expression that fires on 1st day of every month at midnight.
+            Equals to "0 0 1 * *".
+            </summary>
+        </member>
+        <member name="F:Cronos.CronExpression.Daily">
+            <summary>
+            Represents a cron expression that fires every day at midnight.
+            Equals to "0 0 * * *".
+            </summary>
+        </member>
+        <member name="F:Cronos.CronExpression.Hourly">
+            <summary>
+            Represents a cron expression that fires every hour at the beginning of the hour.
+            Equals to "0 * * * *".
+            </summary>
+        </member>
+        <member name="F:Cronos.CronExpression.EveryMinute">
+            <summary>
+            Represents a cron expression that fires every minute.
+            Equals to "* * * * *".
+            </summary>
+        </member>
+        <member name="F:Cronos.CronExpression.EverySecond">
+            <summary>
+            Represents a cron expression that fires every second.
+            Equals to "* * * * * *". 
+            </summary>
+        </member>
+        <member name="M:Cronos.CronExpression.Parse(System.String)">
+            <summary>
+             Constructs a new <see cref="T:Cronos.CronExpression"/> based on the specified
+             cron expression. It's supported expressions consisting of 5 fields:
+             minute, hour, day of month, month, day of week. 
+             If you want to parse non-standard cron expressions use <see cref="M:Cronos.CronExpression.Parse(System.String,Cronos.CronFormat)"/> with specified CronFields argument.
+             See more: <a href="https://github.com/HangfireIO/Cronos">https://github.com/HangfireIO/Cronos</a>
+             </summary>
+        </member>
+        <member name="M:Cronos.CronExpression.Parse(System.String,Cronos.CronFormat)">
+            <summary>
+             Constructs a new <see cref="T:Cronos.CronExpression"/> based on the specified
+             cron expression. It's supported expressions consisting of 5 or 6 fields:
+             second (optional), minute, hour, day of month, month, day of week. 
+             See more: <a href="https://github.com/HangfireIO/Cronos">https://github.com/HangfireIO/Cronos</a>
+             </summary>
+        </member>
+        <member name="M:Cronos.CronExpression.TryParse(System.String,Cronos.CronExpression@)">
+            <summary>
+            Constructs a new <see cref="T:Cronos.CronExpression"/> based on the specified cron expression with the
+            <see cref="F:Cronos.CronFormat.Standard"/> format.
+            A return value indicates whether the operation succeeded.
+            </summary>
+        </member>
+        <member name="M:Cronos.CronExpression.TryParse(System.String,Cronos.CronFormat,Cronos.CronExpression@)">
+            <summary>
+            Constructs a new <see cref="T:Cronos.CronExpression"/> based on the specified cron expression with the specified
+            <paramref name="format"/>.
+            A return value indicates whether the operation succeeded.
+            </summary>
+        </member>
+        <member name="M:Cronos.CronExpression.GetNextOccurrence(System.DateTime,System.Boolean)">
+            <summary>
+            Calculates next occurrence starting with <paramref name="fromUtc"/> (optionally <paramref name="inclusive"/>) in UTC time zone.
+            </summary>
+            <exception cref="T:System.ArgumentException"/>
+        </member>
+        <member name="M:Cronos.CronExpression.GetNextOccurrence(System.DateTime,System.TimeZoneInfo,System.Boolean)">
+            <summary>
+            Calculates next occurrence starting with <paramref name="fromUtc"/> (optionally <paramref name="inclusive"/>) in given <paramref name="zone"/>
+            </summary>
+            <exception cref="T:System.ArgumentException"/>
+        </member>
+        <member name="M:Cronos.CronExpression.GetNextOccurrence(System.DateTimeOffset,System.TimeZoneInfo,System.Boolean)">
+            <summary>
+            Calculates next occurrence starting with <paramref name="from"/> (optionally <paramref name="inclusive"/>) in given <paramref name="zone"/>
+            </summary>
+            <exception cref="T:System.ArgumentException"/>
+        </member>
+        <member name="M:Cronos.CronExpression.GetOccurrences(System.DateTime,System.DateTime,System.Boolean,System.Boolean)">
+            <summary>
+            Returns the list of next occurrences within the given date/time range,
+            including <paramref name="fromUtc"/> and excluding <paramref name="toUtc"/>
+            by default, and UTC time zone. When none of the occurrences found, an 
+            empty list is returned.
+            </summary>
+            <exception cref="T:System.ArgumentException"/>
+        </member>
+        <member name="M:Cronos.CronExpression.GetOccurrences(System.DateTime,System.DateTime,System.TimeZoneInfo,System.Boolean,System.Boolean)">
+            <summary>
+            Returns the list of next occurrences within the given date/time range, including
+            <paramref name="fromUtc"/> and excluding <paramref name="toUtc"/> by default, and 
+            specified time zone. When none of the occurrences found, an empty list is returned.
+            </summary>
+            <exception cref="T:System.ArgumentException"/>
+        </member>
+        <member name="M:Cronos.CronExpression.GetOccurrences(System.DateTimeOffset,System.DateTimeOffset,System.TimeZoneInfo,System.Boolean,System.Boolean)">
+            <summary>
+            Returns the list of occurrences within the given date/time offset range,
+            including <paramref name="from"/> and excluding <paramref name="to"/> by
+            default. When none of the occurrences found, an empty list is returned.
+            </summary>
+            <exception cref="T:System.ArgumentException"/>
+        </member>
+        <member name="M:Cronos.CronExpression.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Cronos.CronExpression.Equals(Cronos.CronExpression)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>.
+            </summary>
+            <param name="other">The <see cref="T:System.Object"/> to compare with the current <see cref="T:System.Object"/>.</param>
+            <returns>
+            <c>true</c> if the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Cronos.CronExpression.Equals(System.Object)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Object" /> is equal to this instance.
+            </summary>
+            <param name="obj">The <see cref="T:System.Object" /> to compare with this instance.</param>
+            <returns>
+            <c>true</c> if the specified <see cref="T:System.Object" /> is equal to this instance;
+            otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Cronos.CronExpression.GetHashCode">
+            <summary>
+            Returns a hash code for this instance.
+            </summary>
+            <returns>
+            A hash code for this instance, suitable for use in hashing algorithms and data
+            structures like a hash table. 
+            </returns>
+        </member>
+        <member name="M:Cronos.CronExpression.op_Equality(Cronos.CronExpression,Cronos.CronExpression)">
+            <summary>
+            Implements the operator ==.
+            </summary>
+        </member>
+        <member name="M:Cronos.CronExpression.op_Inequality(Cronos.CronExpression,Cronos.CronExpression)">
+            <summary>
+            Implements the operator !=.
+            </summary>
+        </member>
+        <member name="T:Cronos.CronFormat">
+            <summary>
+            Defines the cron format options that customize string parsing for <see cref="M:Cronos.CronExpression.Parse(System.String,Cronos.CronFormat)"/>.
+            </summary>
+        </member>
+        <member name="F:Cronos.CronFormat.Standard">
+            <summary>
+            Parsing string must contain only 5 fields: minute, hour, day of month, month, day of week.
+            </summary>
+        </member>
+        <member name="F:Cronos.CronFormat.IncludeSeconds">
+            <summary>
+            Second field must be specified in parsing string.
+            </summary>
+        </member>
+        <member name="T:Cronos.CronFormatException">
+            <summary>
+            Represents an exception that's thrown, when invalid Cron expression is given.
+            </summary>
+        </member>
+        <member name="M:Cronos.CronFormatException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Cronos.CronFormatException"/> class.
+            </summary>
+        </member>
+        <member name="M:Cronos.CronFormatException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Cronos.CronFormatException"/> class with
+            a specified error message.
+            </summary>
+        </member>
+        <member name="M:Cronos.CronFormatException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Cronos.CronFormatException"/> class with
+            a specified error message and a reference to the inner exception that is the
+            cause of this exception.
+            </summary>
+        </member>
+        <member name="M:Cronos.CronFormatException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>
