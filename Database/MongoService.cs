@@ -20,7 +20,7 @@ namespace SimTMDG.Database
             MongoClient client = new MongoClient(mongoUrl);
 
             _database = client.GetDatabase(mongoUrl.DatabaseName);
-            _atcsResultCollection = _database.GetCollection<AtcsResult>("atcs_results");
+            _atcsResultCollection = _database.GetCollection<AtcsResult>("atcs-results");
         }
 
         public List<string> TestConnection()

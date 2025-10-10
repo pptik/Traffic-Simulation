@@ -186,6 +186,7 @@
     <Compile Include="Tools\Vector2.cs" />
     <Compile Include="Vehicle\Bus.cs" />
     <Compile Include="Vehicle\Car.cs" />
+    <Compile Include="Vehicle\EVehicle.cs" />
     <Compile Include="Vehicle\IDM.cs" />
     <Compile Include="Vehicle\IVehicle.cs" />
     <Compile Include="Vehicle\MotorCycle.cs" />

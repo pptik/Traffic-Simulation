@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
@@ -160,25 +161,13 @@ namespace SimTMDG
         public async void Main_Load(object sender, EventArgs e)
         {
             _mongoService = new MongoService();
-            string cronEvery5Second = "*/5 * * * * *";
+            string cronEvery5Second = "*/10 * * * * *";
 
             _scheduler = new Scheduler(cronEvery5Second, async () =>
             {
                 Debug.WriteLine($"[{DateTime.Now}] Cron job jalan!");
-
-                AtcsResult result = await _mongoService.GetAsync("VIDEO-a24e9620-d79c-4d2a-b2f1-ff2b35debbbc-2025");
-
-                if (result != null)
-                {
-                    MessageBox.Show($"Data ditemukan:\nCamera ID: {result.CameraId}\nAverage Speed: {result.AverageSpeed}");
-                }
-                else
-                {
-                    MessageBox.Show("Data dengan GUID tersebut tidak ditemukan.");
-                }
+                await this.GenerateVehicleFromDb();
             });
-
-            //_scheduler.Start();
         }
 
         #region timer
@@ -193,7 +182,7 @@ namespace SimTMDG
             nc.Tick(tickLength);
             nc.Reset();
 
-            this.GenerateVehicles();
+            //this.GenerateVehicles();
             thinkStopwatch.Stop();
             Invalidate(InvalidationLevel.MAIN_CANVAS_AND_TIMELINE);
         }
@@ -205,11 +194,13 @@ namespace SimTMDG
             if (!simIsPlaying)
             {
                 playButton.Text = "Pause";
+                _scheduler.Start();
 
             }
             else
             {
                 playButton.Text = "Play";
+                _scheduler.Stop();
             }
 
             simIsPlaying = !simIsPlaying;
@@ -788,11 +779,7 @@ namespace SimTMDG
                 this._route3.Add(nc.segments.Find(x => x.Id == i));
             }
 
-            //route 4 : Samsat daria rah barat
-            for (int i = 32229; i > 32228; i--)
-            {
-                this._route4.Add(nc.segments.Find(x => x.Id == i));
-            }
+            //route 4 : Samsat daria arah barat
             for (int i = 33889; i < 33891; i++)
             {
                 this._route4.Add(nc.segments.Find(x => x.Id == i));
@@ -800,6 +787,115 @@ namespace SimTMDG
             for (int i = 27062; i < 27064; i++)
             {
                 this._route4.Add(nc.segments.Find(x => x.Id == i));
+            }
+        }
+
+        private void GenerateVehiclesOfType(int count, List<RoadSegment> roadSegment, Func<int, IVehicle> vehicleFactory)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                int laneidx = rnd.Next(0, roadSegment[0].lanes.Count);
+                var vehicle = vehicleFactory(laneidx);
+                roadSegment[0].lanes[laneidx].vehicles.Add(vehicle);
+                activeVehicles++;
+            }
+        }
+
+        private async Task GenerateVehicleFromDb()
+        {
+            List<AtcsResult> results = await _mongoService.GetAsync();
+
+            foreach (AtcsResult result in results)
+            {
+                if (result.CameraId == "1001")
+                {
+
+                    if (result.Bus > 0)
+                    {
+                        GenerateVehiclesOfType(result.Bus, _route4, laneidx => new Bus(_route4[0], laneidx, _route4));
+                    }
+
+                    if (result.Car > 0)
+                    {
+                        GenerateVehiclesOfType(result.Car, _route4, laneidx => new Car(_route4[0], laneidx, _route4));
+                    }
+
+                    if (result.MotorCycle > 0)
+                    {
+                        GenerateVehiclesOfType(result.MotorCycle, _route4, laneidx => new MotorCycle(_route4[0], laneidx, _route4));
+                    }
+
+                    if (result.Truck > 0)
+                    {
+                        GenerateVehiclesOfType(result.Truck, _route4, laneidx => new Truck(_route4[0], laneidx, _route4));
+                    }
+                }
+                else if (result.CameraId == "1401")
+                {
+                    if (result.Bus > 0)
+                    {
+                        GenerateVehiclesOfType(result.Bus, _route, laneidx => new Bus(_route[0], laneidx, _route));
+                    }
+                    
+                    if (result.Car > 0)
+                    {
+                        GenerateVehiclesOfType(result.Car, _route, laneidx => new Car(_route[0], laneidx, _route));
+                    }
+
+                    if (result.MotorCycle > 0)
+                    {
+                        GenerateVehiclesOfType(result.MotorCycle, _route, laneidx => new MotorCycle(_route[0], laneidx, _route));
+                    }
+                    
+                    if (result.Truck > 0)
+                    {
+                        GenerateVehiclesOfType(result.Truck, _route, laneidx => new Truck(_route[0], laneidx, _route));
+                    }
+                }
+                else if (result.CameraId == "1501")
+                {
+                    if (result.Bus > 0)
+                    {
+                        GenerateVehiclesOfType(result.Bus, _route2, laneidx => new Bus(_route2[0], laneidx, _route2));
+                    }
+                    
+                    if (result.Car > 0)
+                    {
+                        GenerateVehiclesOfType(result.Car, _route2, laneidx => new Car(_route2[0], laneidx, _route2));
+                    }
+                    
+                    if (result.MotorCycle > 0)
+                    {
+                        GenerateVehiclesOfType(result.MotorCycle, _route2, laneidx => new MotorCycle(_route2[0], laneidx, _route2));
+                    }
+                    
+                    if (result.Truck > 0)
+                    {
+                        GenerateVehiclesOfType(result.Truck, _route2, laneidx => new Truck(_route2[0], laneidx, _route2));
+                    }
+                }
+                else if (result.CameraId == "1601")
+                {
+                    if (result.Bus > 0)
+                    {
+                        GenerateVehiclesOfType(result.Bus, _route3, laneidx => new Bus(_route3[0], laneidx, _route3));
+                    }
+                    
+                    if (result.Car > 0)
+                    {
+                        GenerateVehiclesOfType(result.Car, _route3, laneidx => new Car(_route3[0], laneidx, _route3));
+                    }
+                    
+                    if (result.MotorCycle > 0)
+                    {
+                        GenerateVehiclesOfType(result.MotorCycle, _route3, laneidx => new MotorCycle(_route3[0], laneidx, _route3));
+                    }
+
+                    if (result.Truck > 0)
+                    {
+                        GenerateVehiclesOfType(result.Truck, _route3, laneidx => new Truck(_route3[0], laneidx, _route3));
+                    }
+                }
             }
         }
 
@@ -824,7 +920,7 @@ namespace SimTMDG
                     }
                     else if (vehType == 2)
                     {
-                        v = new MotorCycle(this._route[0], laneidx, this._route3);
+                        v = new MotorCycle(this._route[0], laneidx, this._route);
                     }
                     else
                     {
@@ -847,7 +943,7 @@ namespace SimTMDG
                     }
                     else if (vehType == 2)
                     {
-                        v = new MotorCycle(this._route2[0], laneidx, this._route3);
+                        v = new MotorCycle(this._route2[0], laneidx, this._route2);
                     }
                     else
                     {
@@ -896,7 +992,7 @@ namespace SimTMDG
                     }
                     else if (vehType == 2)
                     {
-                        v = new MotorCycle(this._route4[0], laneidx, this._route3);
+                        v = new MotorCycle(this._route4[0], laneidx, this._route4);
                     }
                     else
                     {
