@@ -6,20 +6,13 @@ using SimTMDG.Tools;
 using SimTMDG.Vehicle;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace SimTMDG
@@ -185,7 +178,7 @@ namespace SimTMDG
                 }
             });
 
-            _scheduler.Start();
+            //_scheduler.Start();
         }
 
         #region timer
@@ -200,7 +193,7 @@ namespace SimTMDG
             nc.Tick(tickLength);
             nc.Reset();
 
-            //generateVehicles();
+            this.GenerateVehicles();
             thinkStopwatch.Stop();
             Invalidate(InvalidationLevel.MAIN_CANVAS_AND_TIMELINE);
         }
@@ -576,45 +569,6 @@ namespace SimTMDG
             loadingForm.Close();
         }
 
-        private void LoadGraphFromBinary(string filePath)
-        {
-            try
-            {
-                using (FileStream fs = new FileStream(filePath, FileMode.Open))
-                {
-                    var formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                    nc = (NodeControl)formatter.Deserialize(fs);
-                }
-                boundsDefined = true;
-                UpdateDaGridClippingRect();
-
-                this.manuallyAddRoute();
-
-                DaGrid.Invalidate();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Gagal load graph: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void SaveGraphToBinary(string filePath)
-        {
-            try
-            {
-                using (FileStream fs = new FileStream(filePath, FileMode.Create))
-                {
-                    var formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                    formatter.Serialize(fs, nc);
-                }
-                MessageBox.Show("Graph berhasil disimpan ke binary file.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Gagal menyimpan graph: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
         private void makeWaySegment(List<XmlNode> lnd, XmlNode highwayTag, XmlNode numlanesTag, string oneway)
         {
             #region road type and lanes
@@ -709,70 +663,17 @@ namespace SimTMDG
                         if (lanePerDirection < 1)
                             lanePerDirection = 1;
 
-                        nc.segments.Add(generateShiftedSegment(tempSegment, distanceShift, lanePerDirection, tempSegment.Highway, true));
-                        nc.segments.Add(generateShiftedSegment(tempSegment, -distanceShift, lanePerDirection, tempSegment.Highway, false));
+                        nc.segments.Add(this.GenerateShiftedSegment(tempSegment, distanceShift, lanePerDirection, tempSegment.Highway, true));
+                        nc.segments.Add(this.GenerateShiftedSegment(tempSegment, -distanceShift, lanePerDirection, tempSegment.Highway, false));
 
                     }
 
                 }
             }
             #endregion
-
-            #region prev approach
-            //if (oneway != "-1")
-            //{
-            //    for (int i = 0; i < lnd.Count - 1; i++)
-            //    {
-
-            //        long ndId;
-            //        XmlNode ndIdNode = lnd[i].Attributes.GetNamedItem("ref");
-            //        if (ndIdNode != null)
-            //            ndId = long.Parse(ndIdNode.Value);
-            //        else
-            //            ndId = 0;
-
-            //        long ndNextId;
-            //        XmlNode ndIdNextNode = lnd[i + 1].Attributes.GetNamedItem("ref");
-            //        if (ndIdNextNode != null)
-            //            ndNextId = long.Parse(ndIdNextNode.Value);
-            //        else
-            //            ndNextId = 0;
-
-            //        if ((nc._nodes.Find(x => x.Id == ndId) != null) && (nc._nodes.Find(y => y.Id == ndNextId) != null))
-            //        {
-            //            nc.segments.Add(new RoadSegment(nc._nodes.Find(x => x.Id == ndId), nc._nodes.Find(y => y.Id == ndNextId), numlanes, highway, oneway));
-            //        }
-            //    }
-            //}
-            //else // Oneway: Reverse
-            //{
-            //    for (int i = lnd.Count - 1; i > 0; i--)
-            //    {
-
-            //        long ndId;
-            //        XmlNode ndIdNode = lnd[i].Attributes.GetNamedItem("ref");
-            //        if (ndIdNode != null)
-            //            ndId = long.Parse(ndIdNode.Value);
-            //        else
-            //            ndId = 0;
-
-            //        long ndNextId;
-            //        XmlNode ndIdNextNode = lnd[i - 1].Attributes.GetNamedItem("ref");
-            //        if (ndIdNextNode != null)
-            //            ndNextId = long.Parse(ndIdNextNode.Value);
-            //        else
-            //            ndNextId = 0;
-
-            //        if ((nc._nodes.Find(x => x.Id == ndId) != null) && (nc._nodes.Find(y => y.Id == ndNextId) != null))
-            //        {
-            //            nc.segments.Add(new RoadSegment(nc._nodes.Find(x => x.Id == ndId), nc._nodes.Find(y => y.Id == ndNextId), numlanes, highway, oneway));
-            //        }
-            //    }
-            //}
-            #endregion
         }
 
-        RoadSegment generateShiftedSegment(RoadSegment oriSegment, double distance, int numlanes, string highway, Boolean forward)
+        RoadSegment GenerateShiftedSegment(RoadSegment oriSegment, double distance, int numlanes, string highway, Boolean forward)
         {
             double angle = (Math.PI / 2) - Vector2.AngleBetween(oriSegment.startNode.Position, oriSegment.endNode.Position);
             Vector2 shift = new Vector2(distance * Math.Cos(angle), distance * Math.Sin(angle));
@@ -851,44 +752,58 @@ namespace SimTMDG
 
         private void manuallyAddRoute()
         {
-            this._route = new List<RoadSegment>();//Dayeuhkolot-Buahbatu
+            this._route = new List<RoadSegment>();//Dayeuhkolot-Buahbatu 
             this._route2 = new List<RoadSegment>();//Buahbatu-Samsat
             this._route3 = new List<RoadSegment>();//Buahbatu - Dayeuhkolot
             this._route4 = new List<RoadSegment>();//Samsat - Buahbatu
 
             // Route 1 : Dayeuhkolot-Buahbatu
-            for (int i = 37364; i < 37368; i++)
+            for (int i = 37365; i <= 37367; i++)
+            {
+                this._route.Add(nc.segments.Find(x => x.Id == i));
+            }
+            for (int i = 25066; i < 25068; i++)
             {
                 this._route.Add(nc.segments.Find(x => x.Id == i));
             }
             nc.segments.Find(x => x.Id == 37368).endNode.tLight = new TrafficLight();
-
 
             // Route 2 : Buahbatu-Samsat
             for (int i = 25374; i < 25376; i++)
             {
                 this._route2.Add(nc.segments.Find(x => x.Id == i));
             }
-            for (int i = 25071; i < 25077; i++)
+            for (int i = 25071; i < 25074; i++)
             {
                 this._route2.Add(nc.segments.Find(x => x.Id == i));
             }
 
-            this._route3.Add(nc.segments.Find(x => x.Id == 25079));
-            this._route3.Add(nc.segments.Find(x => x.Id == 25080));
-            this._route3.Add(nc.segments.Find(x => x.Id == 25081));
+            // Route 3 : Bubat - Dayehkolot
+            for (int i = 34267; i < 34269; i++)
+            {
+                this._route3.Add(nc.segments.Find(x => x.Id == i));
+            }
+            for (int i = 25079; i < 25082; i++)
+            {
+                this._route3.Add(nc.segments.Find(x => x.Id == i));
+            }
 
-            for (int i = 28285; i < 28287; i++)
+            //route 4 : Samsat daria rah barat
+            for (int i = 32229; i > 32228; i--)
             {
                 this._route4.Add(nc.segments.Find(x => x.Id == i));
             }
-            for (int i = 32219; i < 32226; i++)
+            for (int i = 33889; i < 33891; i++)
+            {
+                this._route4.Add(nc.segments.Find(x => x.Id == i));
+            }
+            for (int i = 27062; i < 27064; i++)
             {
                 this._route4.Add(nc.segments.Find(x => x.Id == i));
             }
         }
 
-        private void generateVehicles()
+        private void GenerateVehicles()
         {
             #region tempVehGenerate
             if ((timeMod % 36) == 0.0)
@@ -896,7 +811,7 @@ namespace SimTMDG
                 if ((vehCount % 2) == 0)
                 {
                     int laneidx = rnd.Next(0, _route[0].lanes.Count);
-                    int vehType = rnd.Next(0, 2);
+                    int vehType = rnd.Next(0, 3);
                     IVehicle v = null;
 
                     if (vehType == 0)
@@ -907,6 +822,10 @@ namespace SimTMDG
                     {
                         v = new Bus(_route[0], laneidx, _route);
                     }
+                    else if (vehType == 2)
+                    {
+                        v = new MotorCycle(this._route[0], laneidx, this._route3);
+                    }
                     else
                     {
                         v = new Truck(_route[0], laneidx, _route);
@@ -916,7 +835,7 @@ namespace SimTMDG
                     activeVehicles++;
 
                     laneidx = rnd.Next(0, _route2[0].lanes.Count);
-                    vehType = rnd.Next(0, 2);
+                    vehType = rnd.Next(0, 3);
 
                     if (vehType == 0)
                     {
@@ -925,6 +844,10 @@ namespace SimTMDG
                     else if (vehType == 1)
                     {
                         v = new Bus(_route2[0], laneidx, _route2);
+                    }
+                    else if (vehType == 2)
+                    {
+                        v = new MotorCycle(this._route2[0], laneidx, this._route3);
                     }
                     else
                     {
@@ -937,7 +860,7 @@ namespace SimTMDG
                 else
                 {
                     int laneidx = rnd.Next(0, this._route3[0].lanes.Count);
-                    int vehType = rnd.Next(0, 2);
+                    int vehType = rnd.Next(0, 3);
                     IVehicle v = null;
 
                     if (vehType == 0)
@@ -948,6 +871,10 @@ namespace SimTMDG
                     {
                         v = new Bus(this._route3[0], laneidx, this._route3);
                     }
+                    else if (vehType == 2)
+                    {
+                        v = new MotorCycle(this._route3[0], laneidx, this._route3);
+                    }
                     else
                     {
                         v = new Truck(this._route3[0], laneidx, this._route3);
@@ -957,7 +884,7 @@ namespace SimTMDG
                     activeVehicles++;
 
                     laneidx = rnd.Next(0, this._route4[0].lanes.Count);
-                    vehType = rnd.Next(0, 2);
+                    vehType = rnd.Next(0, 3);
 
                     if (vehType == 0)
                     {
@@ -966,6 +893,10 @@ namespace SimTMDG
                     else if (vehType == 1)
                     {
                         v = new Bus(this._route4[0], laneidx, this._route4);
+                    }
+                    else if (vehType == 2)
+                    {
+                        v = new MotorCycle(this._route4[0], laneidx, this._route3);
                     }
                     else
                     {

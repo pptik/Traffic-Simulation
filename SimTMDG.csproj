@@ -188,6 +188,7 @@
     <Compile Include="Vehicle\Car.cs" />
     <Compile Include="Vehicle\IDM.cs" />
     <Compile Include="Vehicle\IVehicle.cs" />
+    <Compile Include="Vehicle\MotorCycle.cs" />
     <Compile Include="Vehicle\Truck.cs" />
     <Compile Include="Vehicle\VehicleDistance.cs" />
     <EmbeddedResource Include="LoadingForm\LoadingForm.resx">

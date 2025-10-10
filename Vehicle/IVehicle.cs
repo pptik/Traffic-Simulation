@@ -2,12 +2,9 @@
 using SimTMDG.Tools;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SimTMDG.Vehicle
 {
@@ -719,30 +716,32 @@ namespace SimTMDG.Vehicle
             VehicleDistance vd = null;
             double searchedDistance = 0;
 
-            // Search in current segment
-
-            if ((this.vehiclesIndex < currentLane(direction).vehicles.Count - 1) && (currentLane(direction).vehicles.Count > 1))
+            var lane = currentLane(direction);
+            if (lane != null && lane.vehicles.Count > 0 &&
+                vehiclesIndex >= 0 && vehiclesIndex < lane.vehicles.Count - 1)
             {
-                double returnDistance = currentLane(direction).vehicles[vehiclesIndex + 1].distance 
-                    - (currentLane(direction).vehicles[vehiclesIndex + 1].length / 2 +
-                    this.distance + this.length / 2);
-
-                vd = new VehicleDistance(currentLane(direction).vehicles[vehiclesIndex + 1], returnDistance);
+                var front = lane.vehicles[vehiclesIndex + 1];
+                double returnDistance = front.distance - (front.length / 2 + this.distance + this.length / 2);
+                vd = new VehicleDistance(front, returnDistance);
             }
             else
             {
-                searchedDistance += route[0].Length - (this.FrontPos);
+                if (route.Count == 0) return null;
+
+                searchedDistance += route[0].Length - this.FrontPos;
                 if (searchedDistance < 768)
                 {
-                    for (int i=1; i < route.Count; i++)
+                    for (int i = 1; i < route.Count; i++)
                     {
-                       
-                        if (route[i].lanes[state.laneIdx + direction].vehicles.Count > 1)
-                        {
-                            double returnDistance = (route[i].lanes[state.laneIdx + direction].vehicles[0].distance 
-                                - route[i].lanes[state.laneIdx + direction].vehicles[0].length / 2) + (searchedDistance);
+                        int laneIdx = state.laneIdx + direction;
+                        if (laneIdx < 0 || laneIdx >= route[i].lanes.Count) continue;
 
-                            vd = new VehicleDistance(route[i].lanes[state.laneIdx + direction].vehicles[0], returnDistance);
+                        var nextLane = route[i].lanes[laneIdx];
+                        if (nextLane.vehicles.Count > 0)
+                        {
+                            var front = nextLane.vehicles[0];
+                            double returnDistance = (front.distance - front.length / 2) + searchedDistance;
+                            vd = new VehicleDistance(front, returnDistance);
                             break;
                         }
                         else
@@ -1051,23 +1050,42 @@ namespace SimTMDG.Vehicle
 
         private void RemoveFromCurrentSegment(RoadSegment nextSegment, double startPosition)
         {
+            // Tandai untuk dihapus dari segmen saat ini
             currentLane().vehToRemove.Add(this);
 
             if (nextSegment != null)
             {
-                distance = startPosition;
-                nextSegment.lanes[state.laneIdx].vehicles.Add(this);                
+                int targetLaneIdx = state.laneIdx;
+
+                // Pastikan index lajur valid
+                if (targetLaneIdx >= nextSegment.lanes.Count)
+                    targetLaneIdx = nextSegment.lanes.Count - 1;
+
+                // Cek jarak dengan kendaraan terakhir
+                if (nextSegment.lanes[targetLaneIdx].vehicles.Count > 0)
+                {
+                    var lastVehicle = nextSegment.lanes[targetLaneIdx].vehicles.Last();
+                    if (Math.Abs(lastVehicle.distance - startPosition) < 5)
+                    {
+                        // Batalkan perpindahan & batalkan penghapusan
+                        currentLane().vehToRemove.Remove(this);
+                        return;
+                    }
+                }
+
+                // Update state dulu
+                _state.laneIdx = targetLaneIdx;
                 _state.currentSegment = nextSegment;
+
+                // Baru update posisi dan tambah ke segmen baru
+                distance = startPosition;
+                nextSegment.lanes[targetLaneIdx].vehicles.Add(this);
+
                 newCoord();
                 RotateVehicle(currentSegment.startNode, currentSegment.endNode);
             }
-            else
-            {
-                // Vehicle died
-                // Delete Pointer
-                
-            }
         }
+
 
         public void newCoord()
         {
