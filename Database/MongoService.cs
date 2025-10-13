@@ -9,19 +9,24 @@ namespace SimTMDG.Database
 {
     public class MongoService
     {
+        private static readonly MongoClient _client;
         private readonly IMongoDatabase _database;
         private readonly IMongoCollection<AtcsResult> _atcsResultCollection;
 
-        public MongoService()
+        static MongoService()
         {
             string connectionString = "mongodb://atcs:HgsVxomvAXvUW3z0@nosql.smartsystem.id:27017/atcs";
-            
             MongoUrl mongoUrl = MongoUrl.Create(connectionString);
-            MongoClient client = new MongoClient(mongoUrl);
+            _client = new MongoClient(mongoUrl);
+        }
 
-            _database = client.GetDatabase(mongoUrl.DatabaseName);
+        public MongoService()
+        {
+            string databaseName = "atcs";
+            _database = _client.GetDatabase(databaseName);
             _atcsResultCollection = _database.GetCollection<AtcsResult>("atcs-results");
         }
+
 
         public List<string> TestConnection()
         {

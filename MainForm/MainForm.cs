@@ -107,8 +107,9 @@ namespace SimTMDG
         #endregion
 
         #region Variables / Properties
+        private const int MaxActiveVehicles = 50;
         private bool simIsPlaying = false;
-		private System.Diagnostics.Stopwatch renderStopwatch = new System.Diagnostics.Stopwatch();
+        private System.Diagnostics.Stopwatch renderStopwatch = new System.Diagnostics.Stopwatch();
         private System.Diagnostics.Stopwatch thinkStopwatch = new System.Diagnostics.Stopwatch();
         private DragNDrop howToDrag = DragNDrop.NONE;
         private Rectangle daGridRubberband;
@@ -161,12 +162,20 @@ namespace SimTMDG
         public async void Main_Load(object sender, EventArgs e)
         {
             _mongoService = new MongoService();
-            string cronEvery5Second = "*/10 * * * * *";
+            string cronTime = "*/5 * * * * *";
 
-            _scheduler = new Scheduler(cronEvery5Second, async () =>
+            _scheduler = new Scheduler(cronTime, async () =>
             {
                 Debug.WriteLine($"[{DateTime.Now}] Cron job jalan!");
-                await this.GenerateVehicleFromDb();
+
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new Action(async () => await this.GenerateVehicleFromDb()));
+                }
+                else
+                {
+                    await this.GenerateVehicleFromDb();
+                }
             });
         }
 
@@ -229,9 +238,24 @@ namespace SimTMDG
         }
         #endregion
 
+        private Stopwatch frameStopwatch = new Stopwatch();
+        private const int MaxFPS = 100;
+
         #region paint
         void DaGrid_Paint(object sender, PaintEventArgs e)
         {
+            frameStopwatch.Stop();
+            int elapsed = (int)frameStopwatch.ElapsedMilliseconds;
+
+            int targetFrameTime = 1000 / MaxFPS;
+
+            if (elapsed < targetFrameTime)
+            {
+                System.Threading.Thread.Sleep(targetFrameTime - elapsed);
+            }
+
+            frameStopwatch.Restart();
+
             e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
             e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
@@ -252,7 +276,7 @@ namespace SimTMDG
 
             e.Graphics.Transform = new Matrix(1, 0, 0, 1, 0, 0);
             e.Graphics.DrawString(
-                "thinking time nya der: " + thinkStopwatch.ElapsedMilliseconds + "ms, possible thoughts per second: " + ((thinkStopwatch.ElapsedMilliseconds != 0) ? (1000 / thinkStopwatch.ElapsedMilliseconds).ToString() : "-"),
+                "thinking time: " + thinkStopwatch.ElapsedMilliseconds + "ms, possible thoughts per second: " + ((thinkStopwatch.ElapsedMilliseconds != 0) ? (1000 / thinkStopwatch.ElapsedMilliseconds).ToString() : "-"),
                 new Font("Arial", 10),
                 new SolidBrush(Color.Black),
                 8,
@@ -266,38 +290,44 @@ namespace SimTMDG
                 56);
 
             e.Graphics.DrawString(
-                "Active Vehicles: " + activeVehicles,
+                "Active Vehicles: " + nc.ActiveVehicleCount,
                 new Font("Arial", 10),
                 new SolidBrush(Color.Black),
                 8,
                 72);
         }
 
+        private Stopwatch fpsLimiter = new Stopwatch();
+
         private void Invalidate(InvalidationLevel il)
         {
-            base.Invalidate();
-            switch (il)
+            if (!fpsLimiter.IsRunning)
+                fpsLimiter.Start();
+
+            int targetFrameTime = 1000 / MaxFPS;
+
+            if (fpsLimiter.ElapsedMilliseconds >= targetFrameTime)
             {
-                case InvalidationLevel.ALL:
-                    DaGrid.Invalidate();
-                    break;
-                case InvalidationLevel.MAIN_CANVAS_AND_TIMELINE:
-                    DaGrid.Invalidate();
-                    break;
-                case InvalidationLevel.ONLY_MAIN_CANVAS:
-                    DaGrid.Invalidate();
-                    break;
-                default:
-                    break;
+                base.Invalidate();
+                switch (il)
+                {
+                    case InvalidationLevel.ALL:
+                    case InvalidationLevel.MAIN_CANVAS_AND_TIMELINE:
+                    case InvalidationLevel.ONLY_MAIN_CANVAS:
+                        DaGrid.Invalidate();
+                        break;
+                }
+                fpsLimiter.Restart();
             }
         }
+
 
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
         {
 
         }
 
-		private void UpdateDaGridClippingRect()
+        private void UpdateDaGridClippingRect()
         {
             if (zoomComboBox.SelectedIndex >= 0)
             {
@@ -749,7 +779,7 @@ namespace SimTMDG
             this._route4 = new List<RoadSegment>();//Samsat - Buahbatu
 
             // Route 1 : Dayeuhkolot-Buahbatu
-            for (int i = 37365; i <= 37367; i++)
+            for (int i = 37366; i <= 37367; i++)
             {
                 this._route.Add(nc.segments.Find(x => x.Id == i));
             }
@@ -764,7 +794,7 @@ namespace SimTMDG
             {
                 this._route2.Add(nc.segments.Find(x => x.Id == i));
             }
-            for (int i = 25071; i < 25074; i++)
+            for (int i = 25071; i < 25072; i++)
             {
                 this._route2.Add(nc.segments.Find(x => x.Id == i));
             }
@@ -774,128 +804,131 @@ namespace SimTMDG
             {
                 this._route3.Add(nc.segments.Find(x => x.Id == i));
             }
-            for (int i = 25079; i < 25082; i++)
+            for (int i = 25079; i < 25080; i++)
             {
                 this._route3.Add(nc.segments.Find(x => x.Id == i));
             }
 
             //route 4 : Samsat daria arah barat
-            for (int i = 33889; i < 33891; i++)
+            for (int i = 33890; i < 33891; i++)
             {
                 this._route4.Add(nc.segments.Find(x => x.Id == i));
             }
-            for (int i = 27062; i < 27064; i++)
+            for (int i = 27062; i < 27063; i++)
             {
                 this._route4.Add(nc.segments.Find(x => x.Id == i));
-            }
-        }
-
-        private void GenerateVehiclesOfType(int count, List<RoadSegment> roadSegment, Func<int, IVehicle> vehicleFactory)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                int laneidx = rnd.Next(0, roadSegment[0].lanes.Count);
-                var vehicle = vehicleFactory(laneidx);
-                roadSegment[0].lanes[laneidx].vehicles.Add(vehicle);
-                activeVehicles++;
             }
         }
 
         private async Task GenerateVehicleFromDb()
         {
-            List<AtcsResult> results = await _mongoService.GetAsync();
-
-            foreach (AtcsResult result in results)
+            try
             {
-                if (result.CameraId == "1001")
+                if (nc.ActiveVehicleCount >= MaxActiveVehicles)
                 {
+                    Debug.WriteLine($"[{DateTime.Now}] Vehicle limit reached ({nc.ActiveVehicleCount}/{MaxActiveVehicles}), skip fetching.");
+                    return;
+                }
+
+                Debug.WriteLine($"[{DateTime.Now}] Fetching data from MongoDB...");
+                List<AtcsResult> results = await _mongoService.GetAsync();
+
+                Debug.WriteLine($"[{DateTime.Now}] Found {results.Count} records");
+
+                if (results.Count == 0)
+                {
+                    Debug.WriteLine("No data found in MongoDB");
+                    return;
+                }
+
+                foreach (AtcsResult result in results)
+                {
+                    if (nc.ActiveVehicleCount >= MaxActiveVehicles)
+                    {
+                        Debug.WriteLine($"Vehicle limit reached while spawning, stop processing more results.");
+                        break;
+                    }
+
+                    List<RoadSegment> targetRoute = null;
+                    switch (result.CameraId)
+                    {
+                        case "1001": targetRoute = _route4; break;
+                        case "1401": targetRoute = _route; break;
+                        case "1501": targetRoute = _route2; break;
+                        case "1601": targetRoute = _route3; break;
+                        default:
+                            Debug.WriteLine($"Unknown CameraId: {result.CameraId}");
+                            continue;
+                    }
+
+                    if (targetRoute == null || targetRoute.Count == 0)
+                    {
+                        Debug.WriteLine($"Route untuk CameraId {result.CameraId} tidak tersedia");
+                        continue;
+                    }
 
                     if (result.Bus > 0)
-                    {
-                        GenerateVehiclesOfType(result.Bus, _route4, laneidx => new Bus(_route4[0], laneidx, _route4));
-                    }
+                        GenerateVehiclesOfType(result.Bus, targetRoute, laneidx => new Bus(targetRoute[0], laneidx, targetRoute));
 
                     if (result.Car > 0)
-                    {
-                        GenerateVehiclesOfType(result.Car, _route4, laneidx => new Car(_route4[0], laneidx, _route4));
-                    }
+                        GenerateVehiclesOfType(result.Car, targetRoute, laneidx => new Car(targetRoute[0], laneidx, targetRoute));
 
                     if (result.MotorCycle > 0)
-                    {
-                        GenerateVehiclesOfType(result.MotorCycle, _route4, laneidx => new MotorCycle(_route4[0], laneidx, _route4));
-                    }
+                        GenerateVehiclesOfType(result.MotorCycle, targetRoute, laneidx => new MotorCycle(targetRoute[0], laneidx, targetRoute));
 
                     if (result.Truck > 0)
-                    {
-                        GenerateVehiclesOfType(result.Truck, _route4, laneidx => new Truck(_route4[0], laneidx, _route4));
-                    }
+                        GenerateVehiclesOfType(result.Truck, targetRoute, laneidx => new Truck(targetRoute[0], laneidx, targetRoute));
                 }
-                else if (result.CameraId == "1401")
+
+                Debug.WriteLine($"[{DateTime.Now}] Total active vehicles: {nc.ActiveVehicleCount}");
+                Invalidate(InvalidationLevel.MAIN_CANVAS_AND_TIMELINE);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[{DateTime.Now}] Error in GenerateVehicleFromDb: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                MessageBox.Show($"Error saat generate vehicle: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void GenerateVehiclesOfType(int count, List<RoadSegment> roadSegment, Func<int, IVehicle> vehicleFactory)
+        {
+            try
+            {
+                if (roadSegment == null || roadSegment.Count == 0) return;
+
+                var firstSegment = roadSegment[0];
+                if (firstSegment.lanes == null || firstSegment.lanes.Count == 0) return;
+
+                int maxVehiclesPerLane = 5;
+
+                for (int i = 0; i < count; i++)
                 {
-                    if (result.Bus > 0)
+                    if (nc.ActiveVehicleCount >= MaxActiveVehicles)
                     {
-                        GenerateVehiclesOfType(result.Bus, _route, laneidx => new Bus(_route[0], laneidx, _route));
-                    }
-                    
-                    if (result.Car > 0)
-                    {
-                        GenerateVehiclesOfType(result.Car, _route, laneidx => new Car(_route[0], laneidx, _route));
+                        Debug.WriteLine($"Global vehicle limit reached ({nc.ActiveVehicleCount}/{MaxActiveVehicles}), stop spawning.");
+                        break;
                     }
 
-                    if (result.MotorCycle > 0)
+                    int laneidx = rnd.Next(0, firstSegment.lanes.Count);
+
+                    if (firstSegment.lanes[laneidx].vehicles == null)
+                        firstSegment.lanes[laneidx].vehicles = new List<IVehicle>();
+
+                    if (firstSegment.lanes[laneidx].vehicles.Count >= maxVehiclesPerLane)
                     {
-                        GenerateVehiclesOfType(result.MotorCycle, _route, laneidx => new MotorCycle(_route[0], laneidx, _route));
-                    }
-                    
-                    if (result.Truck > 0)
-                    {
-                        GenerateVehiclesOfType(result.Truck, _route, laneidx => new Truck(_route[0], laneidx, _route));
-                    }
-                }
-                else if (result.CameraId == "1501")
-                {
-                    if (result.Bus > 0)
-                    {
-                        GenerateVehiclesOfType(result.Bus, _route2, laneidx => new Bus(_route2[0], laneidx, _route2));
-                    }
-                    
-                    if (result.Car > 0)
-                    {
-                        GenerateVehiclesOfType(result.Car, _route2, laneidx => new Car(_route2[0], laneidx, _route2));
-                    }
-                    
-                    if (result.MotorCycle > 0)
-                    {
-                        GenerateVehiclesOfType(result.MotorCycle, _route2, laneidx => new MotorCycle(_route2[0], laneidx, _route2));
-                    }
-                    
-                    if (result.Truck > 0)
-                    {
-                        GenerateVehiclesOfType(result.Truck, _route2, laneidx => new Truck(_route2[0], laneidx, _route2));
-                    }
-                }
-                else if (result.CameraId == "1601")
-                {
-                    if (result.Bus > 0)
-                    {
-                        GenerateVehiclesOfType(result.Bus, _route3, laneidx => new Bus(_route3[0], laneidx, _route3));
-                    }
-                    
-                    if (result.Car > 0)
-                    {
-                        GenerateVehiclesOfType(result.Car, _route3, laneidx => new Car(_route3[0], laneidx, _route3));
-                    }
-                    
-                    if (result.MotorCycle > 0)
-                    {
-                        GenerateVehiclesOfType(result.MotorCycle, _route3, laneidx => new MotorCycle(_route3[0], laneidx, _route3));
+                        Debug.WriteLine($"Lane {laneidx} sudah penuh, skip kendaraan");
+                        continue;
                     }
 
-                    if (result.Truck > 0)
-                    {
-                        GenerateVehiclesOfType(result.Truck, _route3, laneidx => new Truck(_route3[0], laneidx, _route3));
-                    }
+                    IVehicle v = vehicleFactory(laneidx);
+                    firstSegment.lanes[laneidx].vehicles.Add(v);
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GenerateVehiclesOfType: {ex.Message}");
+                Debug.WriteLine(ex.StackTrace);
             }
         }
 
