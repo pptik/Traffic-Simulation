@@ -182,19 +182,20 @@ namespace SimTMDG
         #region timer
         private void timerSimulation_Tick(object sender, EventArgs e)
         {
-            thinkStopwatch.Reset();
-            thinkStopwatch.Start();
+            Task.Run(() =>
+            {
+                double tickLength = 1.0d / _temp_stepsPerSeconds;
+                GlobalTime.Instance.Advance(tickLength);
+                nc.Tick(tickLength);
+                nc.Reset();
 
-            double tickLength = 1.0d / _temp_stepsPerSeconds;
-            GlobalTime.Instance.Advance(tickLength);
-
-            nc.Tick(tickLength);
-            nc.Reset();
-
-            //this.GenerateVehicles();
-            thinkStopwatch.Stop();
-            Invalidate(InvalidationLevel.MAIN_CANVAS_AND_TIMELINE);
+                this.Invoke((Action)(() =>
+                {
+                    Invalidate(InvalidationLevel.MAIN_CANVAS_AND_TIMELINE);
+                }));
+            });
         }
+
         #endregion
 
         #region UI event
@@ -238,24 +239,9 @@ namespace SimTMDG
         }
         #endregion
 
-        private Stopwatch frameStopwatch = new Stopwatch();
-        private const int MaxFPS = 100;
-
         #region paint
         void DaGrid_Paint(object sender, PaintEventArgs e)
         {
-            frameStopwatch.Stop();
-            int elapsed = (int)frameStopwatch.ElapsedMilliseconds;
-
-            int targetFrameTime = 1000 / MaxFPS;
-
-            if (elapsed < targetFrameTime)
-            {
-                System.Threading.Thread.Sleep(targetFrameTime - elapsed);
-            }
-
-            frameStopwatch.Restart();
-
             e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
             e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
@@ -297,30 +283,23 @@ namespace SimTMDG
                 72);
         }
 
-        private Stopwatch fpsLimiter = new Stopwatch();
-
         private void Invalidate(InvalidationLevel il)
-        {
-            if (!fpsLimiter.IsRunning)
-                fpsLimiter.Start();
-
-            int targetFrameTime = 1000 / MaxFPS;
-
-            if (fpsLimiter.ElapsedMilliseconds >= targetFrameTime)
-            {
-                base.Invalidate();
-                switch (il)
-                {
-                    case InvalidationLevel.ALL:
-                    case InvalidationLevel.MAIN_CANVAS_AND_TIMELINE:
-                    case InvalidationLevel.ONLY_MAIN_CANVAS:
-                        DaGrid.Invalidate();
-                        break;
-                }
-                fpsLimiter.Restart();
-            }
+        { 
+            base.Invalidate();
+            switch (il)
+            { 
+                case InvalidationLevel.ALL: 
+                    DaGrid.Invalidate(); 
+                    break; 
+                case InvalidationLevel.MAIN_CANVAS_AND_TIMELINE: 
+                    DaGrid.Invalidate(); 
+                    break; 
+                case InvalidationLevel.ONLY_MAIN_CANVAS: DaGrid.Invalidate(); 
+                    break; 
+                default: 
+                    break; 
+            } 
         }
-
 
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
         {
@@ -783,24 +762,24 @@ namespace SimTMDG
             {
                 this._route.Add(nc.segments.Find(x => x.Id == i));
             }
-            for (int i = 25066; i < 25068; i++)
+            for (int i = 25065; i < 25068; i++)
             {
                 this._route.Add(nc.segments.Find(x => x.Id == i));
             }
             nc.segments.Find(x => x.Id == 37368).endNode.tLight = new TrafficLight();
 
             // Route 2 : Buahbatu-Samsat
-            for (int i = 25374; i < 25376; i++)
+            for (int i = 25374; i < 25377; i++)
             {
                 this._route2.Add(nc.segments.Find(x => x.Id == i));
             }
-            for (int i = 25071; i < 25072; i++)
+            for (int i = 25071; i < 25073; i++)
             {
                 this._route2.Add(nc.segments.Find(x => x.Id == i));
             }
 
             // Route 3 : Bubat - Dayehkolot
-            for (int i = 34267; i < 34269; i++)
+            for (int i = 34267; i <= 34269; i++)
             {
                 this._route3.Add(nc.segments.Find(x => x.Id == i));
             }

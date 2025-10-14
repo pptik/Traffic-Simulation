@@ -498,63 +498,63 @@ namespace SimTMDG.Vehicle
 
             leadVd = findVehicleInFront(route);
 
-            if (leadVd != null && leadVd.distance < lookaheadDistance)
-            {
-                lookaheadDistance = leadVd.distance;
-                lowestAcceleration = CalculateAcceleration(physics.velocity, effectiveDesiredVelocity, lookaheadDistance, physics.velocity - leadVd.vehicle._physics.velocity);
-            }
-            else
-            {
-                // free acceleration
-                lowestAcceleration = CalculateAcceleration(physics.velocity, effectiveDesiredVelocity, lookaheadDistance, physics.velocity);
-            }
+            //if (leadVd != null && leadVd.distance < lookaheadDistance)
+            //{
+            //    lookaheadDistance = leadVd.distance;
+            //    lowestAcceleration = CalculateAcceleration(physics.velocity, effectiveDesiredVelocity, lookaheadDistance, physics.velocity - leadVd.vehicle._physics.velocity);
+            //}
+            //else
+            //{
+            //    // free acceleration
+            //    lowestAcceleration = CalculateAcceleration(physics.velocity, effectiveDesiredVelocity, lookaheadDistance, physics.velocity);
+            //}
 
             #endregion
 
 
-            #region Traffic lights
+            //#region Traffic lights
 
-            // Check for red traffic lights on route
-            double distanceToTrafficLight = GetDistanceToNextTrafficLightOnRoute(route, this.distance, 768, true);
-            intersectionLookaheadDistance = distanceToTrafficLight;
+            //// Check for red traffic lights on route
+            //double distanceToTrafficLight = GetDistanceToNextTrafficLightOnRoute(route, this.distance, 768, true);
+            //intersectionLookaheadDistance = distanceToTrafficLight;
 
-            // If the next TrafficLight is closer than the next vehicle, no free line change shall be performed
-            if (distanceToTrafficLight < lookaheadDistance)
-            {
-                lookaheadDistance = distanceToTrafficLight;
-                thinkAboutLineChange = false;
-                lowestAcceleration = CalculateAcceleration(physics.velocity, effectiveDesiredVelocity, lookaheadDistance, physics.velocity);
-                _state._freeDrive = false;
-            }
+            //// If the next TrafficLight is closer than the next vehicle, no free line change shall be performed
+            //if (distanceToTrafficLight < lookaheadDistance)
+            //{
+            //    lookaheadDistance = distanceToTrafficLight;
+            //    thinkAboutLineChange = false;
+            //    lowestAcceleration = CalculateAcceleration(physics.velocity, effectiveDesiredVelocity, lookaheadDistance, physics.velocity);
+            //    _state._freeDrive = false;
+            //}
 
-            #endregion
+            //#endregion
 
 
-            #region lane changing
-            if (inProcessOfLaneChange())
-            {
-                updateLaneChangeDelay(tickLength);
-            }
-            else if (!(currentSegment.lanes.Count < 2))
-            {
-                int direction = 0;
+            //#region lane changing
+            //if (inProcessOfLaneChange())
+            //{
+            //    updateLaneChangeDelay(tickLength);
+            //}
+            //else if (!(currentSegment.lanes.Count < 2))
+            //{
+            //    int direction = 0;
 
-                // Check lane + 1
-                if (state.laneIdx < currentSegment.lanes.Count - 1)
-                {
-                    direction = 1;
-                    lowestAcceleration = ConsiderLaneChange(direction, tickLength, route, lowestAcceleration);
-                }
+            //    // Check lane + 1
+            //    if (state.laneIdx < currentSegment.lanes.Count - 1)
+            //    {
+            //        direction = 1;
+            //        lowestAcceleration = ConsiderLaneChange(direction, tickLength, route, lowestAcceleration);
+            //    }
 
-                // Check lane - 1
-                if (state.laneIdx > 0)
-                {
-                    direction = -1;
-                    lowestAcceleration = ConsiderLaneChange(direction, tickLength, route, lowestAcceleration);
-                }
+            //    // Check lane - 1
+            //    if (state.laneIdx > 0)
+            //    {
+            //        direction = -1;
+            //        lowestAcceleration = ConsiderLaneChange(direction, tickLength, route, lowestAcceleration);
+            //    }
                 
-            }
-            #endregion
+            //}
+            //#endregion
 
 
             return lowestAcceleration;
