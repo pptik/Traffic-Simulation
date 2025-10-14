@@ -24,7 +24,7 @@ namespace SimTMDG.Database
         {
             string databaseName = "atcs";
             _database = _client.GetDatabase(databaseName);
-            _atcsResultCollection = _database.GetCollection<AtcsResult>("atcs-results");
+            _atcsResultCollection = _database.GetCollection<AtcsResult>("summaries_videos");
         }
 
 
@@ -47,7 +47,7 @@ namespace SimTMDG.Database
             await _atcsResultCollection.Find(_ => true).ToListAsync();
 
         public async Task<AtcsResult>GetAsync(string id) =>
-            await _atcsResultCollection.Find(result => result.Guid == id).FirstOrDefaultAsync();
+            await _atcsResultCollection.Find(result => result.GuidProcess == id).FirstOrDefaultAsync();
     }
 
 }

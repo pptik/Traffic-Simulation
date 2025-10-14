@@ -10,9 +10,6 @@ namespace SimTMDG.Database.Entity
         [BsonElement("_id"), BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
-        [BsonElement("guid"), BsonRepresentation(BsonType.String)]
-        public string Guid { get; set; }
-
         [BsonElement("guid_proses"), BsonRepresentation(BsonType.String)]
         public string GuidProcess { get; set; }
 
@@ -28,11 +25,14 @@ namespace SimTMDG.Database.Entity
         [BsonElement("updated_at"), BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
         public DateTime UpdatedAt { get; set; }
 
+        [BsonElement("filename"), BsonRepresentation(BsonType.String)]
+        public string FileName { get; set; }
+
         [BsonElement("filename_result"), BsonRepresentation(BsonType.String)]
         public string FileNameResult { get; set; }
 
-        [BsonElement("average_speed"), BsonRepresentation(BsonType.Double)]
-        public double AverageSpeed { get; set; }
+        [BsonElement("average_speed_kmh"), BsonRepresentation(BsonType.Double)]
+        public double AverageSpeedKmh { get; set; }
 
         [BsonElement("car"), BsonRepresentation(BsonType.Int32)]
         public int Car {  get; set; }
@@ -48,5 +48,8 @@ namespace SimTMDG.Database.Entity
 
         [BsonElement("total_vehicle"), BsonRepresentation(BsonType.Int32)]
         public int TotalVehicles { get; set; }
+
+        [BsonElement("max_queue_length"), BsonRepresentation(BsonType.Int32)]
+        public int MaxQueueLength { get; set; }
     }
 }

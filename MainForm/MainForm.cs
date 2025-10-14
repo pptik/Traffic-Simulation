@@ -773,7 +773,7 @@ namespace SimTMDG
             {
                 this._route2.Add(nc.segments.Find(x => x.Id == i));
             }
-            for (int i = 25071; i < 25073; i++)
+            for (int i = 25071; i < 25074; i++)
             {
                 this._route2.Add(nc.segments.Find(x => x.Id == i));
             }
