@@ -32,6 +32,11 @@ namespace SimTMDG
         private List<RoadSegment> _route3;
         private List<RoadSegment> _route4;
 
+        private int _queue_route1 = 0;
+        private int _queue_route2 = 0;
+        private int _queue_route3 = 0;
+        private int _queue_route4 = 0;
+
         Random rnd = new Random();//Objek Random untuk menghasilkan angka acak
         int vehCount = 0;
         int activeVehicles = 0;
@@ -242,6 +247,14 @@ namespace SimTMDG
         #region paint
         void DaGrid_Paint(object sender, PaintEventArgs e)
         {
+            var legends = new List<(string Name, Color Color)>
+            {
+                ("Motorcycle", Color.FromArgb(17, 34, 78)),
+                ("Car", Color.FromArgb(248, 123, 27)),
+                ("Bus", Color.FromArgb(59, 151, 151)),
+                ("Truck", Color.FromArgb(191, 9, 47))
+            };
+
             e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
             e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
@@ -266,21 +279,70 @@ namespace SimTMDG
                 new Font("Arial", 10),
                 new SolidBrush(Color.Black),
                 8,
-                40);
+                8);
 
             e.Graphics.DrawString(
                 "rendering time: " + renderStopwatch.ElapsedMilliseconds + "ms, possible fps: " + ((renderStopwatch.ElapsedMilliseconds != 0) ? (1000 / renderStopwatch.ElapsedMilliseconds).ToString() : "-"),
                 new Font("Arial", 10),
                 new SolidBrush(Color.Black),
                 8,
-                56);
+                24);
 
             e.Graphics.DrawString(
                 "Active Vehicles: " + nc.ActiveVehicleCount,
                 new Font("Arial", 10),
                 new SolidBrush(Color.Black),
                 8,
+                40);
+
+            e.Graphics.DrawString(
+                "Queue From Dayeuhkolot to Buah Batu: " + _queue_route1,
+                new Font("Arial", 10),
+                new SolidBrush(Color.Black),
+                8,
+                56);
+
+            e.Graphics.DrawString(
+                "Queue From Buah Batu to Samsat: " + _queue_route2,
+                new Font("Arial", 10),
+                new SolidBrush(Color.Black),
+                8,
                 72);
+
+            e.Graphics.DrawString(
+                "Queue From Buah Batu to Dayeuhkolot: " + _queue_route3,
+                new Font("Arial", 10),
+                new SolidBrush(Color.Black),
+                8,
+                88);
+
+            e.Graphics.DrawString(
+                "Queue From West to Samsat: " + _queue_route4,
+                new Font("Arial", 10),
+                new SolidBrush(Color.Black),
+                8,
+                104);
+
+            int legendStartX = 8;
+            int boxSize = 12;
+            int spacingY = 20;
+            int legendHeight = legends.Count * spacingY;
+            int legendStartY = e.ClipRectangle.Height - legendHeight - 10;
+
+            using (Font legendFont = new Font("Arial", 10))
+            {
+                e.Graphics.DrawString("Legend :", new Font("Arial", 10, FontStyle.Bold), Brushes.Black, legendStartX, legendStartY - 20);
+
+                for (int i = 0; i < legends.Count; i++)
+                {
+                    var item = legends[i];
+                    int y = legendStartY + i * spacingY;
+
+                    e.Graphics.FillRectangle(new SolidBrush(item.Color), legendStartX, y, boxSize, boxSize);
+                    e.Graphics.DrawString(item.Name, legendFont, Brushes.Black, legendStartX + boxSize + 8, y - 1);
+                }
+            }
+
         }
 
         private void Invalidate(InvalidationLevel il)
@@ -451,7 +513,6 @@ namespace SimTMDG
             switch (howToDrag)
             {
                 case DragNDrop.MOVE_MAIN_GRID:
-                    //thumbGrid.Invalidate();
                     break;
                 default:
                     break;
@@ -831,10 +892,22 @@ namespace SimTMDG
                     List<RoadSegment> targetRoute = null;
                     switch (result.CameraId)
                     {
-                        case "1001": targetRoute = _route4; break;
-                        case "1401": targetRoute = _route; break;
-                        case "1501": targetRoute = _route2; break;
-                        case "1601": targetRoute = _route3; break;
+                        case "1001":
+                            _queue_route4 = result.MaxQueueLength;
+                            targetRoute = _route4;
+                            break;
+                        case "1401":
+                            _queue_route1 = result.MaxQueueLength;
+                            targetRoute = _route;
+                            break;
+                        case "1501":
+                            _queue_route2 = result.MaxQueueLength;
+                            targetRoute = _route2;
+                            break;
+                        case "1601":
+                            _queue_route3 = result.MaxQueueLength;
+                            targetRoute = _route3;
+                            break;
                         default:
                             Debug.WriteLine($"Unknown CameraId: {result.CameraId}");
                             continue;

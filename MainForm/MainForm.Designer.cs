@@ -24,6 +24,7 @@ namespace SimTMDG
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            this.pictureBoxDishub = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.speedComboBox = new System.Windows.Forms.ComboBox();
@@ -34,9 +35,12 @@ namespace SimTMDG
             this.timerSimulation = new System.Windows.Forms.Timer(this.components);
             this.DaGrid = new SimTMDG.MainForm.CustUserControl();
             this.playButton = new System.Windows.Forms.Button();
+
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDishub)).BeginInit();
             this.SuspendLayout();
+
             // 
             // tableLayoutPanel1
             // 
@@ -45,32 +49,21 @@ namespace SimTMDG
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.DaGrid, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.buttonTLightTemp, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.pictureBoxDishub, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.buttonTLightTemp, 0, 2);
+            this.tableLayoutPanel1.SetRowSpan(this.DaGrid, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowCount = 3;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 44F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(1453, 801);
             this.tableLayoutPanel1.TabIndex = 0;
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
+
             // 
             // flowLayoutPanel1
             // 
@@ -84,45 +77,52 @@ namespace SimTMDG
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(1156, 36);
             this.flowLayoutPanel1.TabIndex = 0;
+
             // 
             // speedComboBox
             // 
             this.speedComboBox.FormattingEnabled = true;
-            this.speedComboBox.Items.AddRange(new object[] {
-            "1x",
-            "2x",
-            "4x",
-            "8x",
-            "16x"});
+            this.speedComboBox.Items.AddRange(new object[]
+            {
+                "1x",
+                "2x",
+                "4x",
+                "8x",
+                "16x"
+            });
             this.speedComboBox.Location = new System.Drawing.Point(4, 4);
             this.speedComboBox.Margin = new System.Windows.Forms.Padding(4);
             this.speedComboBox.Name = "speedComboBox";
             this.speedComboBox.Size = new System.Drawing.Size(160, 24);
             this.speedComboBox.TabIndex = 2;
             this.speedComboBox.SelectedIndexChanged += new System.EventHandler(this.speedComboBox_SelectedIndexChanged);
+
             // 
             // zoomComboBox
             // 
             this.zoomComboBox.FormattingEnabled = true;
-            this.zoomComboBox.Items.AddRange(new object[] {
-            "5%",
-            "10%",
-            "15%",
-            "20%",
-            "25%",
-            "33%",
-            "50%",
-            "67%",
-            "100%",
-            "150%",
-            "200%",
-            "400%"});
+            this.zoomComboBox.Items.AddRange(new object[]
+            {
+                "5%",
+                "10%",
+                "15%",
+                "20%",
+                "25%",
+                "33%",
+                "50%",
+                "67%",
+                "100%",
+                "150%",
+                "200%",
+                "400%"
+            });
             this.zoomComboBox.Location = new System.Drawing.Point(172, 4);
             this.zoomComboBox.Margin = new System.Windows.Forms.Padding(4);
             this.zoomComboBox.Name = "zoomComboBox";
             this.zoomComboBox.Size = new System.Drawing.Size(160, 24);
             this.zoomComboBox.TabIndex = 3;
             this.zoomComboBox.SelectedIndexChanged += new System.EventHandler(this.zoomComboBox_SelectedIndexChanged);
+
             // 
             // stepButton
             // 
@@ -134,6 +134,7 @@ namespace SimTMDG
             this.stepButton.Text = "Single Step";
             this.stepButton.UseVisualStyleBackColor = true;
             this.stepButton.Click += new System.EventHandler(this.stepButton_Click);
+
             // 
             // tempLoadButton
             // 
@@ -145,10 +146,24 @@ namespace SimTMDG
             this.tempLoadButton.Text = "Load";
             this.tempLoadButton.UseVisualStyleBackColor = true;
             this.tempLoadButton.Click += new System.EventHandler(this.tempLoadButton_Click);
+
+            // 
+            // pictureBoxDishub
+            // 
+            this.pictureBoxDishub.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBoxDishub.Image = global::SimTMDG.Properties.Resources.dishub_bandung;
+            this.pictureBoxDishub.Location = new System.Drawing.Point(4, 48);
+            this.pictureBoxDishub.Margin = new System.Windows.Forms.Padding(4);
+            this.pictureBoxDishub.Name = "pictureBoxDishub";
+            this.pictureBoxDishub.Size = new System.Drawing.Size(285, 92);
+            this.pictureBoxDishub.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBoxDishub.TabIndex = 5;
+            this.pictureBoxDishub.TabStop = false;
+
             // 
             // buttonTLightTemp
             // 
-            this.buttonTLightTemp.Location = new System.Drawing.Point(4, 48);
+            this.buttonTLightTemp.Location = new System.Drawing.Point(4, 148);
             this.buttonTLightTemp.Margin = new System.Windows.Forms.Padding(4);
             this.buttonTLightTemp.Name = "buttonTLightTemp";
             this.buttonTLightTemp.Size = new System.Drawing.Size(285, 28);
@@ -156,11 +171,13 @@ namespace SimTMDG
             this.buttonTLightTemp.Text = "Change Traffic Light";
             this.buttonTLightTemp.UseVisualStyleBackColor = true;
             this.buttonTLightTemp.Click += new System.EventHandler(this.buttonTLightTemp_Click);
+
             // 
             // timerSimulation
             // 
             this.timerSimulation.Interval = 67;
             this.timerSimulation.Tick += new System.EventHandler(this.timerSimulation_Tick);
+
             // 
             // DaGrid
             // 
@@ -184,6 +201,7 @@ namespace SimTMDG
             this.DaGrid.MouseUp += new System.Windows.Forms.MouseEventHandler(this.DaGrid_MouseUp);
             this.DaGrid.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.DaGrid_MouseWheel);
             this.DaGrid.Resize += new System.EventHandler(this.DaGrid_Resize);
+
             // 
             // playButton
             // 
@@ -195,6 +213,7 @@ namespace SimTMDG
             this.playButton.Text = "Play";
             this.playButton.UseVisualStyleBackColor = true;
             this.playButton.Click += new System.EventHandler(this.playButton_Click);
+
             // 
             // Main
             // 
@@ -205,11 +224,13 @@ namespace SimTMDG
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Main";
             this.Text = "Simulasi Mikro Lalu Lintas";
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDishub)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
+
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
@@ -222,6 +243,7 @@ namespace SimTMDG
         private System.Windows.Forms.Button tempLoadButton;
         private System.Windows.Forms.Button buttonTLightTemp;
         private System.Windows.Forms.Button playButton;
+        private System.Windows.Forms.PictureBox pictureBoxDishub;
     }
 }
 
