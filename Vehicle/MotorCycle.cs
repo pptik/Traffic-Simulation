@@ -1,11 +1,7 @@
 ﻿using SimTMDG.Road;
 using SimTMDG.Tools;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SimTMDG.Vehicle
 {
@@ -13,7 +9,6 @@ namespace SimTMDG.Vehicle
     {
         public MotorCycle(RoadSegment cs, int laneIndex, List<RoadSegment> r)
         {
-
             _state.currentSegment = cs;
             _state.laneIdx = laneIndex;
 
@@ -24,11 +19,7 @@ namespace SimTMDG.Vehicle
 
             length = GlobalRandom.Instance.Next(2, 4);
 
-            color = Color.FromArgb(
-                GlobalRandom.Instance.Next(64, 200),
-                GlobalRandom.Instance.Next(64, 200),
-                GlobalRandom.Instance.Next(64, 200)
-            );
+            color = Color.FromArgb(17, 34, 78);
 
             Routing = new Routing();
             for (int i = 0; i < r.Count; i++)
