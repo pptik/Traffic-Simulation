@@ -7,7 +7,7 @@ namespace SimTMDG.Vehicle
 {
     class Truck : IVehicle
     {
-        public Truck(RoadSegment cs, int laneIndex, List<RoadSegment> r)
+        public Truck(RoadSegment cs, int laneIndex, List<RoadSegment> r, long stopSegmentId)
         {
             a = 0.6;
             b = 0.8;
@@ -31,6 +31,10 @@ namespace SimTMDG.Vehicle
                 Routing.Push(r[i]);
             }
             _physics = new IVehicle.Physics(14, 14, 0);
+
+            this.StopSegmentId = stopSegmentId;
+            this.IsQueued = false;
+            this.IsReleased = false;
 
             newCoord();
             RotateVehicle(currentSegment.startNode, currentSegment.endNode);

@@ -51,5 +51,17 @@ namespace SimTMDG.Database.Entity
 
         [BsonElement("max_queue_length"), BsonRepresentation(BsonType.Int32)]
         public int MaxQueueLength { get; set; }
+
+        [BsonElement("average_queue_length_m"), BsonRepresentation(BsonType.Double)]
+        public double AverageMaxQueueLength { get; set; }
+
+        [BsonElement("max_queue_length_m"), BsonRepresentation(BsonType.Double)]
+        public double MaxQueueLengthM { get; set; }
+
+        [BsonElement("queue_count"), BsonRepresentation(BsonType.Int32)]
+        public int QueueCount { get; set; }
+
+        [BsonElement("queue_length_m"), BsonRepresentation(BsonType.Double)]
+        public double QueueLengthM { get; set; }
     }
 }
