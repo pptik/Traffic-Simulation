@@ -63,5 +63,8 @@ namespace SimTMDG.Database.Entity
 
         [BsonElement("queue_length_m"), BsonRepresentation(BsonType.Double)]
         public double QueueLengthM { get; set; }
+
+        [BsonElement("traffic_light"), BsonRepresentation(BsonType.Boolean)]
+        public bool TrafficLight { get; set; }
     }
 }

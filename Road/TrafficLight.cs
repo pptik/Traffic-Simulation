@@ -30,30 +30,14 @@ namespace SimTMDG.Road
     [Serializable]
     public class TrafficLight // : TimelineEntry, ISavable
     {
-        /// <summary>
-        /// Status einer Ampel (rot oder grün)
-        /// </summary>
         public enum State
         {
-            /// <summary>
-            /// grüne Ampel
-            /// </summary>
             GREEN,
-
-            /// <summary>
-            /// rote Ampel
-            /// </summary>
             RED
         }
 
-
-        /// <summary>
-        /// aktueller Status der Ampel
-        /// </summary>
         private State _trafficLightState;
-        /// <summary>
-        /// aktueller Status der Ampel
-        /// </summary>
+        
         [XmlIgnore]
         public State trafficLightState
         {
@@ -61,15 +45,9 @@ namespace SimTMDG.Road
             set { _trafficLightState = value; }
         }
 
-        /// <summary>
-        /// Liste von LineNodes denen dieses TrafficLight zugeordnet ist
-        /// </summary>
         [XmlIgnore]
         private List<Node> _assignedNodes = new List<Node>();
 
-        /// <summary>
-        /// Liste von LineNodes denen dieses TrafficLight zugeordnet ist
-        /// </summary>
         [XmlIgnore]
         public List<Node> assignedNodes
         {
@@ -77,35 +55,16 @@ namespace SimTMDG.Road
         }
 
         #region Hashcodes
-
-        /*
-		 * Nachdem der ursprüngliche Ansatz zu Hashen zu argen Kollisionen geführt hat, nun eine verlässliche Methode für Kollisionsfreie Hashes 
-		 * mittels eindeutiger IDs für jedes TrafficLight die über statisch Klassenvariablen vergeben werden
-		 */
-
-        /// <summary>
-        /// Klassenvariable welche den letzten vergebenen hashcode speichert und bei jeder Instanziierung eines Objektes inkrementiert werden muss
-        /// </summary>
         [XmlIgnore]
         private static int hashcodeIndex = 0;
 
-        /// <summary>
-        /// Hashcode des instanziierten Objektes
-        /// </summary>
         public int hashcode = -1;
 
-        /// <summary>
-        /// gibt den Hashcode des Fahrzeuges zurück.
-        /// </summary>
-        /// <returns></returns>
         public override int GetHashCode()
         {
             return hashcode;
         }
 
-        /// <summary>
-        /// Setzt die statische Klassenvariable hashcodeIndex zurück. Achtung: darf nur in bestimmten Fällen aufgerufen werden.
-        /// </summary>
         public static void ResetHashcodeIndex()
         {
             hashcodeIndex = 0;
@@ -115,17 +74,12 @@ namespace SimTMDG.Road
 
         #region Konstruktoren
 
-        /// <summary>
-        /// Konstruktor für TimelineEntry-Ampeln
-        /// </summary>
         public TrafficLight()
         {
             hashcode = hashcodeIndex++;
 
             // Initial Event anlegen
-            //this.defaultAction = SwitchToRed;
-            trafficLightState = State.GREEN;
-            //this.color = Color.Red;
+            trafficLightState = State.RED;
         }
         #endregion
 

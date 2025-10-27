@@ -170,7 +170,7 @@ namespace SimTMDG
             this.buttonTLightTemp.TabIndex = 4;
             this.buttonTLightTemp.Text = "Change Traffic Light";
             this.buttonTLightTemp.UseVisualStyleBackColor = true;
-            this.buttonTLightTemp.Click += new System.EventHandler(this.buttonTLightTemp_Click);
+            this.buttonTLightTemp.Click += new System.EventHandler(this.ButtonTLightTemp_Click);
 
             // 
             // timerSimulation

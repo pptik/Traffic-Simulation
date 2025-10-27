@@ -928,7 +928,6 @@ namespace SimTMDG.Vehicle
             }
         }
 
-
         public void newCoord()
         {
             Vector2 difference = currentLane().endNode.Position - currentLane().startNode.Position;

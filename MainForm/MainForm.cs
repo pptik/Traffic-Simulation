@@ -31,6 +31,11 @@ namespace SimTMDG
         private long _stopSegmentId3 = 34268; // Titik henti untuk _route3 (Buahbatu-Dayeuhkolot)
         private long _stopSegmentId4 = 33890; // Titik henti untuk _route4 (Barat-Samsat)
 
+        private TrafficLight _trafficLight1;
+        private TrafficLight _trafficLight2;
+        private TrafficLight _trafficLight3;
+        private TrafficLight _trafficLight4;
+
         //List RoadSegment untuk menyimpan rute kendaraan
         private List<RoadSegment> _route;
         private List<RoadSegment> _route2;
@@ -167,6 +172,11 @@ namespace SimTMDG
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
 
             this.nc = new NodeControl();
+
+            _trafficLight1 = new TrafficLight();
+            _trafficLight2 = new TrafficLight();
+            _trafficLight3 = new TrafficLight();
+            _trafficLight4 = new TrafficLight();
 
             string osmPath = @"C:\Users\ajico\Documents\Coding\Backend\c#_digtwin\SimTMDG-master\osm-map\bandung-city-wide.osm";
             LoadOsmMap(osmPath);
@@ -633,7 +643,8 @@ namespace SimTMDG
 
             loadingForm.StepUpperProgress("Generate Rute Manual...");
             Debug.WriteLine($"Jumlah Segmen: {nc.segments.Count}");
-            manuallyAddRoute();
+            ManuallyAddRoute();
+            AddTrafficLightManually();
 
             loadingForm.StepUpperProgress("Selesai");
             loadingForm.ShowLog();
@@ -806,67 +817,85 @@ namespace SimTMDG
             DaGrid.Invalidate();
         }
 
-        private void buttonTLightTemp_Click(object sender, EventArgs e)
+        private void ButtonTLightTemp_Click(object sender, EventArgs e)
         {
-            switch (nc.segments.Find(x => x.Id == 3768).endNode.tLight.trafficLightState)
+            switch (_trafficLight1.trafficLightState)
             {
                 case TrafficLight.State.GREEN:
-                    nc.segments.Find(x => x.Id == 3768).endNode.tLight.SwitchToRed();
+                    _trafficLight1.SwitchToRed();
                     break;
                 case TrafficLight.State.RED:
-                    nc.segments.Find(x => x.Id == 3768).endNode.tLight.SwitchToGreen();
+                    _trafficLight1.SwitchToGreen();
                     break;
             }
 
             Invalidate(InvalidationLevel.MAIN_CANVAS_AND_TIMELINE);
         }
 
-        private void manuallyAddRoute()
+        private void ManuallyAddRoute()
         {
-            this._route = new List<RoadSegment>();//Dayeuhkolot-Buahbatu 
-            this._route2 = new List<RoadSegment>();//Buahbatu-Samsat
-            this._route3 = new List<RoadSegment>();//Buahbatu - Dayeuhkolot
-            this._route4 = new List<RoadSegment>();//Samsat - Buahbatu
+            _route = new List<RoadSegment>();//Dayeuhkolot-Buahbatu 
+            _route2 = new List<RoadSegment>();//Buahbatu-Samsat
+            _route3 = new List<RoadSegment>();//Buahbatu - Dayeuhkolot
+            _route4 = new List<RoadSegment>();//Samsat - Buahbatu
 
             // Route 1 : Dayeuhkolot-Buahbatu
             for (int i = 37366; i <= 37367; i++)
             {
-                this._route.Add(nc.segments.Find(x => x.Id == i));
+                _route.Add(nc.segments.Find(x => x.Id == i));
             }
             for (int i = 25065; i < 25068; i++)
             {
-                this._route.Add(nc.segments.Find(x => x.Id == i));
+                _route.Add(nc.segments.Find(x => x.Id == i));
             }
-            nc.segments.Find(x => x.Id == 37368).endNode.tLight = new TrafficLight();
 
             // Route 2 : Buahbatu-Samsat
             for (int i = 25374; i < 25377; i++)
             {
-                this._route2.Add(nc.segments.Find(x => x.Id == i));
+                _route2.Add(nc.segments.Find(x => x.Id == i));
             }
             for (int i = 25071; i < 25074; i++)
             {
-                this._route2.Add(nc.segments.Find(x => x.Id == i));
+                _route2.Add(nc.segments.Find(x => x.Id == i));
             }
 
             // Route 3 : Bubat - Dayehkolot
             for (int i = 34267; i <= 34269; i++)
             {
-                this._route3.Add(nc.segments.Find(x => x.Id == i));
+                _route3.Add(nc.segments.Find(x => x.Id == i));
             }
             for (int i = 25079; i < 25080; i++)
             {
-                this._route3.Add(nc.segments.Find(x => x.Id == i));
+                _route3.Add(nc.segments.Find(x => x.Id == i));
             }
 
             //route 4 : Samsat daria arah barat
             for (int i = 33890; i < 33891; i++)
             {
-                this._route4.Add(nc.segments.Find(x => x.Id == i));
+                _route4.Add(nc.segments.Find(x => x.Id == i));
             }
             for (int i = 27062; i < 27063; i++)
             {
-                this._route4.Add(nc.segments.Find(x => x.Id == i));
+                _route4.Add(nc.segments.Find(x => x.Id == i));
+            }
+        }
+
+        private void AddTrafficLightManually()
+        {
+            nc.segments.Find(x => x.Id == 37368).endNode.tLight = _trafficLight1;
+            nc.segments.Find(x => x.Id == 25377).endNode.tLight = _trafficLight2;
+            nc.segments.Find(x => x.Id == 34269).endNode.tLight = _trafficLight3;
+            nc.segments.Find(x => x.Id == 33891).endNode.tLight = _trafficLight4;
+        }
+
+        private void ChangeTrafficLight(bool status, TrafficLight trafficLight)
+        {
+            if (status)
+            {
+                trafficLight.SwitchToGreen();
+            } else
+            {
+                trafficLight.SwitchToRed();
             }
         }
 
@@ -938,24 +967,28 @@ namespace SimTMDG
                             targetRoute = _route4;
                             stopId = _stopSegmentId4;
                             actualQueuedList = _queuedVehiclesRoute4;
+                            ChangeTrafficLight(result.TrafficLight, _trafficLight4);
                             break;
                         case "1401":
                             _queue_route1 = result.QueueCount;
                             targetRoute = _route;
                             stopId = _stopSegmentId1;
                             actualQueuedList = _queuedVehiclesRoute1;
+                            ChangeTrafficLight(result.TrafficLight, _trafficLight1);
                             break;
                         case "1501":
                             _queue_route2 = result.QueueCount;
                             targetRoute = _route2;
                             stopId = _stopSegmentId2;
                             actualQueuedList = _queuedVehiclesRoute2;
+                            ChangeTrafficLight(result.TrafficLight, _trafficLight2);
                             break;
                         case "1601":
                             _queue_route3 = result.QueueCount;
                             targetRoute = _route3;
                             stopId = _stopSegmentId3;
                             actualQueuedList = _queuedVehiclesRoute3;
+                            ChangeTrafficLight(result.TrafficLight, _trafficLight3);
                             break;
                         default:
                             Debug.WriteLine($"Unknown CameraId: {result.CameraId}");
@@ -981,7 +1014,6 @@ namespace SimTMDG
                             if (vehiclesToSpawn < 0) vehiclesToSpawn = 0;
                             Debug.WriteLine($"Spawning dibatasi {vehiclesToSpawn} oleh limit global.");
                         }
-
 
                         if (vehiclesToSpawn > 0)
                         {
