@@ -1,20 +1,21 @@
-﻿using SimTMDG.Database;
-using SimTMDG.Database.Entity;
-using SimTMDG.Road;
-using SimTMDG.Time;
-using SimTMDG.Tools;
-using SimTMDG.Vehicle;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
+using SimTMDG.Database;
+using SimTMDG.Database.Entity;
+using SimTMDG.Road;
+using SimTMDG.Time;
+using SimTMDG.Tools;
+using SimTMDG.Vehicle;
 
 namespace SimTMDG
 {
@@ -315,33 +316,33 @@ namespace SimTMDG
                 8,
                 40);
 
-            e.Graphics.DrawString(
-                "Queue From Dayeuhkolot to Buah Batu: " + _queue_route1,
-                new Font("Arial", 10),
-                new SolidBrush(Color.Black),
-                8,
-                56);
+            //e.Graphics.DrawString(
+            //    "Queue From Dayeuhkolot to Buah Batu: " + _queue_route1,
+            //    new Font("Arial", 10),
+            //    new SolidBrush(Color.Black),
+            //    8,
+            //    56);
 
-            e.Graphics.DrawString(
-                "Queue From Buah Batu to Samsat: " + _queue_route2,
-                new Font("Arial", 10),
-                new SolidBrush(Color.Black),
-                8,
-                72);
+            //e.Graphics.DrawString(
+            //    "Queue From Buah Batu to Samsat: " + _queue_route2,
+            //    new Font("Arial", 10),
+            //    new SolidBrush(Color.Black),
+            //    8,
+            //    72);
 
-            e.Graphics.DrawString(
-                "Queue From Buah Batu to Dayeuhkolot: " + _queue_route3,
-                new Font("Arial", 10),
-                new SolidBrush(Color.Black),
-                8,
-                88);
+            //e.Graphics.DrawString(
+            //    "Queue From Buah Batu to Dayeuhkolot: " + _queue_route3,
+            //    new Font("Arial", 10),
+            //    new SolidBrush(Color.Black),
+            //    8,
+            //    88);
 
-            e.Graphics.DrawString(
-                "Queue From West to Samsat: " + _queue_route4,
-                new Font("Arial", 10),
-                new SolidBrush(Color.Black),
-                8,
-                104);
+            //e.Graphics.DrawString(
+            //    "Queue From West to Samsat: " + _queue_route4,
+            //    new Font("Arial", 10),
+            //    new SolidBrush(Color.Black),
+            //    8,
+            //    104);
 
             int legendStartX = 8;
             int boxSize = 12;
@@ -644,7 +645,7 @@ namespace SimTMDG
             loadingForm.StepUpperProgress("Generate Rute Manual...");
             Debug.WriteLine($"Jumlah Segmen: {nc.segments.Count}");
             ManuallyAddRoute();
-            AddTrafficLightManually();
+            //AddTrafficLightManually();
 
             loadingForm.StepUpperProgress("Selesai");
             loadingForm.ShowLog();
@@ -817,20 +818,20 @@ namespace SimTMDG
             DaGrid.Invalidate();
         }
 
-        private void ButtonTLightTemp_Click(object sender, EventArgs e)
-        {
-            switch (_trafficLight1.trafficLightState)
-            {
-                case TrafficLight.State.GREEN:
-                    _trafficLight1.SwitchToRed();
-                    break;
-                case TrafficLight.State.RED:
-                    _trafficLight1.SwitchToGreen();
-                    break;
-            }
+        //private void ButtonTLightTemp_Click(object sender, EventArgs e)
+        //{
+        //    switch (_trafficLight1.trafficLightState)
+        //    {
+        //        case ETrafficLight.GREEN:
+        //            _trafficLight1.SwitchToRed();
+        //            break;
+        //        case ETrafficLight.RED:
+        //            _trafficLight1.SwitchToYellow();
+        //            break;
+        //    }
 
-            Invalidate(InvalidationLevel.MAIN_CANVAS_AND_TIMELINE);
-        }
+        //    Invalidate(InvalidationLevel.MAIN_CANVAS_AND_TIMELINE);
+        //}
 
         private void ManuallyAddRoute()
         {
@@ -880,22 +881,25 @@ namespace SimTMDG
             }
         }
 
-        private void AddTrafficLightManually()
-        {
-            nc.segments.Find(x => x.Id == 37368).endNode.tLight = _trafficLight1;
-            nc.segments.Find(x => x.Id == 25377).endNode.tLight = _trafficLight2;
-            nc.segments.Find(x => x.Id == 34269).endNode.tLight = _trafficLight3;
-            nc.segments.Find(x => x.Id == 33891).endNode.tLight = _trafficLight4;
-        }
+        //private void AddTrafficLightManually()
+        //{
+        //    nc.segments.Find(x => x.Id == 37368).endNode.tLight = _trafficLight1;
+        //    nc.segments.Find(x => x.Id == 25377).endNode.tLight = _trafficLight2;
+        //    nc.segments.Find(x => x.Id == 34269).endNode.tLight = _trafficLight3;
+        //    nc.segments.Find(x => x.Id == 33891).endNode.tLight = _trafficLight4;
+        //}
 
-        private void ChangeTrafficLight(bool status, TrafficLight trafficLight)
+        private void ChangeTrafficLight(ETrafficLight status, TrafficLight trafficLight)
         {
-            if (status)
+            if (status == ETrafficLight.GREEN)
             {
                 trafficLight.SwitchToGreen();
-            } else
+            } else if (status == ETrafficLight.RED)
             {
                 trafficLight.SwitchToRed();
+            } else
+            {
+                trafficLight.SwitchToYellow();
             }
         }
 
@@ -903,7 +907,6 @@ namespace SimTMDG
         {
             try
             {
-
                 Debug.WriteLine($"[{DateTime.Now}] Fetching data from MongoDB...");
                 List<AtcsResult> results = await _mongoService.GetAsync();
 
@@ -911,11 +914,6 @@ namespace SimTMDG
                 {
                     return;
                 }
-
-                _queuedVehiclesRoute1.Clear();
-                _queuedVehiclesRoute2.Clear();
-                _queuedVehiclesRoute3.Clear();
-                _queuedVehiclesRoute4.Clear();
 
                 if (nc != null && nc.Segments != null)
                 {
@@ -958,7 +956,6 @@ namespace SimTMDG
                     List<RoadSegment> targetRoute = null;
                     long stopId = 0;
                     List<IVehicle> actualQueuedList = null;
-                    Func<int, long, IVehicle> vehicleFactory = null;
 
                     switch (result.CameraId)
                     {
@@ -967,28 +964,24 @@ namespace SimTMDG
                             targetRoute = _route4;
                             stopId = _stopSegmentId4;
                             actualQueuedList = _queuedVehiclesRoute4;
-                            ChangeTrafficLight(result.TrafficLight, _trafficLight4);
                             break;
                         case "1401":
                             _queue_route1 = result.QueueCount;
                             targetRoute = _route;
                             stopId = _stopSegmentId1;
                             actualQueuedList = _queuedVehiclesRoute1;
-                            ChangeTrafficLight(result.TrafficLight, _trafficLight1);
                             break;
                         case "1501":
                             _queue_route2 = result.QueueCount;
                             targetRoute = _route2;
                             stopId = _stopSegmentId2;
                             actualQueuedList = _queuedVehiclesRoute2;
-                            ChangeTrafficLight(result.TrafficLight, _trafficLight2);
                             break;
                         case "1601":
                             _queue_route3 = result.QueueCount;
                             targetRoute = _route3;
                             stopId = _stopSegmentId3;
                             actualQueuedList = _queuedVehiclesRoute3;
-                            ChangeTrafficLight(result.TrafficLight, _trafficLight3);
                             break;
                         default:
                             Debug.WriteLine($"Unknown CameraId: {result.CameraId}");
@@ -1001,69 +994,45 @@ namespace SimTMDG
                         continue;
                     }
 
-                    int targetQueueCount = result.QueueCount;
+                    int totalDbVehicles = result.Car + result.MotorCycle + result.Bus + result.Truck;
                     int currentActualQueueSize = actualQueuedList.Count;
 
-                    if (targetQueueCount > currentActualQueueSize)
+                    if (currentActualQueueSize <= result.QueueCount)
                     {
-                        int vehiclesToSpawn = targetQueueCount - currentActualQueueSize;
+                        if (result.Car > 0)
+                            GenerateVehiclesOfType(result.Car, targetRoute, stopId, (laneIdx, sId) => new Car(targetRoute[0], laneIdx, new List<RoadSegment>(targetRoute), sId), actualQueuedList);
+                        if (result.MotorCycle > 0)
+                            GenerateVehiclesOfType(result.MotorCycle, targetRoute, stopId, (laneIdx, sId) => new MotorCycle(targetRoute[0], laneIdx, new List<RoadSegment>(targetRoute), sId), actualQueuedList);
+                        if (result.Bus > 0)
+                            GenerateVehiclesOfType(result.Bus, targetRoute, stopId, (laneIdx, sId) => new Bus(targetRoute[0], laneIdx, new List<RoadSegment>(targetRoute), sId), actualQueuedList);
+                        if (result.Truck > 0)
+                            GenerateVehiclesOfType(result.Truck, targetRoute, stopId, (laneIdx, sId) => new Truck(targetRoute[0], laneIdx, new List<RoadSegment>(targetRoute), sId), actualQueuedList);
 
-                        if (nc.ActiveVehicleCount + vehiclesToSpawn > MaxActiveVehicles)
-                        {
-                            vehiclesToSpawn = MaxActiveVehicles - nc.ActiveVehicleCount;
-                            if (vehiclesToSpawn < 0) vehiclesToSpawn = 0;
-                            Debug.WriteLine($"Spawning dibatasi {vehiclesToSpawn} oleh limit global.");
-                        }
-
-                        if (vehiclesToSpawn > 0)
-                        {
-                            vehicleFactory = (laneIdx, sId) => {
-                                int vehType = rnd.Next(0, 4);
-                                switch (vehType)
-                                {
-                                    case 0: return new Car(targetRoute[0], laneIdx, new List<RoadSegment>(targetRoute), sId);
-                                    case 1: return new Bus(targetRoute[0], laneIdx, new List<RoadSegment>(targetRoute), sId);
-                                    case 2: return new Truck(targetRoute[0], laneIdx, new List<RoadSegment>(targetRoute), sId);
-                                    default: return new MotorCycle(targetRoute[0], laneIdx, new List<RoadSegment>(targetRoute), sId);
-                                }
-                            };
-                            Debug.WriteLine($"[{DateTime.Now}] Spawning {vehiclesToSpawn} for route {result.CameraId}.");
-                            GenerateVehiclesOfType(vehiclesToSpawn, targetRoute, stopId, vehicleFactory);
-                        }
                     }
-                    else if (targetQueueCount < currentActualQueueSize)
+
+                    Console.WriteLine($"{result.CameraId}: Total VDB {totalDbVehicles}, Current V: {currentActualQueueSize}, Target: {result.QueueCount}");
+
+                    if (result.QueueCount < currentActualQueueSize)
                     {
-                        int vehiclesToRelease = currentActualQueueSize - targetQueueCount;
-                        Debug.WriteLine($"[{DateTime.Now}] Releasing {vehiclesToRelease} from route {result.CameraId}.");
+                        int vehiclesToRelease = currentActualQueueSize - result.QueueCount;
+                        Debug.WriteLine($"[{DateTime.Now}] Releasing {vehiclesToRelease} vehicles from route {result.CameraId}.");
 
                         for (int i = 0; i < vehiclesToRelease; i++)
                         {
-                            if (actualQueuedList.Count > 0)
-                            {
-                                var vehicleToRelease = actualQueuedList[0];
-                                if (vehicleToRelease != null && vehicleToRelease.IsQueued)
-                                {
-                                    vehicleToRelease.IsQueued = false;
-                                    vehicleToRelease.IsReleased = true;
-                                    Debug.WriteLine($" - Releasing vehicle {vehicleToRelease.GetHashCode()}");
-                                    actualQueuedList.RemoveAt(0);
-                                }
-                                else
-                                {
-                                    Debug.WriteLine($" - Warning: Vehicle {vehicleToRelease?.GetHashCode()} in queue list was invalid/not queued. Removing.");
-                                    actualQueuedList.RemoveAt(0);
-                                    i--;
-                                }
-                            }
-                            else
-                            {
-                                break;
-                            }
+                            if (actualQueuedList.Count == 0) break;
+
+                            var vehicleToRelease = actualQueuedList[0];
+                            actualQueuedList.RemoveAt(0);
+
+                            if (vehicleToRelease == null) continue;
+
+                            vehicleToRelease.IsQueued = false;
+                            vehicleToRelease.IsReleased = true;
+
+                            Console.WriteLine($" - Vehicle {vehicleToRelease.GetHashCode()} released and starts moving.");
                         }
                     }
-                }
-
-                Debug.WriteLine($"[{DateTime.Now}] Tick End. Total active vehicles: {nc.ActiveVehicleCount}");
+                } 
             }
             catch (Exception ex)
             {
@@ -1072,7 +1041,7 @@ namespace SimTMDG
             }
         }
 
-        private List<IVehicle> GenerateVehiclesOfType(int count, List<RoadSegment> roadSegment, long stopSegmentId, Func<int, long, IVehicle> vehicleFactory)
+        private List<IVehicle> GenerateVehiclesOfType(int count, List<RoadSegment> roadSegment, long stopSegmentId, Func<int, long, IVehicle> vehicleFactory, List<IVehicle> actualQueuedList)
         {
             List<IVehicle> createdVehicles = new List<IVehicle>();
             try
@@ -1107,6 +1076,7 @@ namespace SimTMDG
 
                     firstSegment.lanes[laneidx].vehicles.Add(v);
                     createdVehicles.Add(v);
+                    actualQueuedList.Add(v);
                 }
             }
             catch (Exception ex)

@@ -76,13 +76,17 @@ namespace SimTMDG.Road
 
             if (tLight != null)
             {
-                if (tLight.trafficLightState == TrafficLight.State.GREEN)
+                if (tLight.trafficLightState == ETrafficLight.GREEN)
                 {
                     penColor = Color.Green;
                 }
-                else if (tLight.trafficLightState == TrafficLight.State.RED)
+                else if (tLight.trafficLightState == ETrafficLight.RED)
                 {
                     penColor = Color.Red;
+                }
+                else if (tLight.trafficLightState == ETrafficLight.YELLOW)
+                {
+                    penColor = Color.Yellow;
                 }
 
                 //Pen pen = new Pen(penColor, 1);

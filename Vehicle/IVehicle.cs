@@ -785,7 +785,7 @@ namespace SimTMDG.Vehicle
                 {
                     if(route[i].endNode.tLight != null)
                     {
-                        if (route[i].endNode.tLight.trafficLightState == TrafficLight.State.RED)
+                        if (route[i].endNode.tLight.trafficLightState == ETrafficLight.RED)
                         {
                             toReturn = route[i].Length + searchedDistance - (this.distance + this.length / 2);
                             return toReturn;

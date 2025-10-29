@@ -1,9 +1,22 @@
 ﻿using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using SimTMDG.Road;
 
 namespace SimTMDG.Database.Entity
 {
+    public class TrafficLightRecomentadion
+    {
+        [BsonElement("green_sec"), BsonRepresentation(BsonType.Int32)]
+        public int greenSec { get; set; }
+
+        [BsonElement("yellow_sec"), BsonRepresentation(BsonType.Int32)]
+        public int yellowSec { get; set; }
+
+        [BsonElement("red_sec"), BsonRepresentation(BsonType.Int32)]
+        public int redSec { get; set; }
+    }
+
     public class AtcsResult
     {
         [BsonId]
@@ -64,7 +77,10 @@ namespace SimTMDG.Database.Entity
         [BsonElement("queue_length_m"), BsonRepresentation(BsonType.Double)]
         public double QueueLengthM { get; set; }
 
-        [BsonElement("traffic_light"), BsonRepresentation(BsonType.Boolean)]
-        public bool TrafficLight { get; set; }
+        [BsonElement("traffic_light"), BsonRepresentation(BsonType.String)]
+        public ETrafficLight TrafficLight { get; set; }
+
+        [BsonElement("recommendation")]
+        public TrafficLightRecomentadion Recomentadion { get; set; }
     }
 }

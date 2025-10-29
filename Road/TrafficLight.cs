@@ -33,13 +33,14 @@ namespace SimTMDG.Road
         public enum State
         {
             GREEN,
-            RED
+            RED,
+            YELLOW
         }
 
-        private State _trafficLightState;
+        private ETrafficLight _trafficLightState;
         
         [XmlIgnore]
-        public State trafficLightState
+        public ETrafficLight trafficLightState
         {
             get { return _trafficLightState; }
             set { _trafficLightState = value; }
@@ -79,7 +80,7 @@ namespace SimTMDG.Road
             hashcode = hashcodeIndex++;
 
             // Initial Event anlegen
-            trafficLightState = State.RED;
+            trafficLightState = ETrafficLight.RED;
         }
         #endregion
 
@@ -184,19 +185,19 @@ namespace SimTMDG.Road
             return false;
         }
 
-        /// <summary>
-        /// stellt die Ampel auf grün
-        /// </summary>
         public void SwitchToGreen()
         {
-            this.trafficLightState = State.GREEN;
+            trafficLightState = ETrafficLight.GREEN;
         }
-        /// <summary>
-        /// stellt die Ampel auf rot
-        /// </summary>
+
         public void SwitchToRed()
         {
-            this.trafficLightState = State.RED;
+            trafficLightState = ETrafficLight.RED;
+        }
+
+        public void SwitchToYellow()
+        {
+            trafficLightState = ETrafficLight.YELLOW;
         }
 
 

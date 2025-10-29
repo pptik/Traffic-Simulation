@@ -50,7 +50,7 @@ namespace SimTMDG
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.DaGrid, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.pictureBoxDishub, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.buttonTLightTemp, 0, 2);
+            //this.tableLayoutPanel1.Controls.Add(this.buttonTLightTemp, 0, 2);
             this.tableLayoutPanel1.SetRowSpan(this.DaGrid, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -163,14 +163,14 @@ namespace SimTMDG
             // 
             // buttonTLightTemp
             // 
-            this.buttonTLightTemp.Location = new System.Drawing.Point(4, 148);
-            this.buttonTLightTemp.Margin = new System.Windows.Forms.Padding(4);
-            this.buttonTLightTemp.Name = "buttonTLightTemp";
-            this.buttonTLightTemp.Size = new System.Drawing.Size(285, 28);
-            this.buttonTLightTemp.TabIndex = 4;
-            this.buttonTLightTemp.Text = "Change Traffic Light";
-            this.buttonTLightTemp.UseVisualStyleBackColor = true;
-            this.buttonTLightTemp.Click += new System.EventHandler(this.ButtonTLightTemp_Click);
+            //this.buttonTLightTemp.Location = new System.Drawing.Point(4, 148);
+            //this.buttonTLightTemp.Margin = new System.Windows.Forms.Padding(4);
+            //this.buttonTLightTemp.Name = "buttonTLightTemp";
+            //this.buttonTLightTemp.Size = new System.Drawing.Size(285, 28);
+            //this.buttonTLightTemp.TabIndex = 4;
+            //this.buttonTLightTemp.Text = "Change Traffic Light";
+            //this.buttonTLightTemp.UseVisualStyleBackColor = true;
+            //this.buttonTLightTemp.Click += new System.EventHandler(this.ButtonTLightTemp_Click);
 
             // 
             // timerSimulation
